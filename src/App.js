@@ -1,9 +1,30 @@
 import React from 'react';
 import logo from './logo.svg';
+import AImg from './img/A.png';
+import AsImg from './img/As.png';
+import BImg from './img/B.png';
+import BsImg from './img/Bs.png';
 import './App.css';
 
-const e = React.createElement 
-const alphabets = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+// const e = React.createElement 
+const alphabets = [
+                    ['R','I','F','O','B','X'],
+                    ['I','F','E','H','E','Y'],
+                    ['D','E','N','O','W','S'],
+                    ['U','T','O','K','N','D'],
+                    ['H','M','S','R','A','O'],
+                    ['L','U','P','E','T','S'],
+                    ['A','C','I','T','O','A'],
+                    ['Y','L','G','K','U','E'],
+                    ['Qu','B','M','J','O','A'],
+                    ['E','H','I','S','P','N'],
+                    ['V','E','T','I','G','N'],
+                    ['B','A','L','I','Y','T'],
+                    ['E','Z','A','V','N','D'],
+                    ['R','A','L','E','S','C'],
+                    ['U','W','I','L','R','G'],
+                    ['P','A','C','E','M','D'],
+                  ];
 const cellNeighbors = [
                         [1,4,5],[0,2,4,5,6],[1,3,5,6,7],[2,6,7],
                         [0,1,5,8,9],[0,1,2,4,6,8,9,10],[1,2,3,5,7,9,10,11],[2,3,6,10,11],
@@ -11,40 +32,90 @@ const cellNeighbors = [
                         [8,9,13],[8,9,10,12,14],[9,10,11,13,15],[10,11,14]
                       ]; // 4x4 cell neighbors
 
+class Cell extends React.Component{
+  constructor(props) {
+    super(props);
+    var max = 5;
+    this.state = { selected: false, selectedIndex:  Math.floor(Math.random() * max)};
+    this.alphabet = alphabets[this.props.index][this.state.selectedIndex];
+    // this.alphabet = alphabets[4][4] + "Img";
+    switch (this.alphabet){
+      case "A":
+        this.img = AImg;
+      break;
+
+    }
+  }
+
+  clickclick (a){
+    this.setState({
+      selected: true
+    });
+    // console.log(a)
+  }
+
+  render(){
+    
+    let nameId = "cell" +  this.props.index;
+    // console.log("rendered")
+    if(!this.state.selected){
+      return (
+        <td id={nameId} data-testid={nameId}>
+          <img src={AImg}  onClick={() => this.clickclick(this.alphabet)}/>
+        </td>
+      );
+    }else{
+      return (
+        <td id={nameId} data-testid={nameId}>
+          <img src={AsImg}  onClick={() => this.clickclick(this.alphabet)}/>
+        </td>
+      );
+    }
+    
+  }
+}
+
 class Boggle extends React.Component {
   constructor(props) {
     super(props);
     this.state = { start: false };
   }
 
+  renderCell (i){
+    return (
+      <Cell
+        index={i}
+      />
+    );
+  }
 
   render(){
     return(
-    <table cellPadding="0" cellSpacing="0">
+    <table>
       <tbody>
         <tr>
-          <td id="cell0" data-testid="cell0">Cell 0</td>
-          <td id="cell1" data-testid="cell1">Cell 1</td>
-          <td id="cell2" data-testid="cell2">Cell 2</td>
-          <td id="cell3" data-testid="cell3">Cell 3</td>
+          {this.renderCell(0)}
+          {this.renderCell(1)}
+          {this.renderCell(2)}
+          {this.renderCell(3)}
         </tr>
         <tr>
-          <td id="cell4" data-testid="cell4">Cell 4</td>
-          <td id="cell5" data-testid="cell5">Cell 5</td>
-          <td id="cell6" data-testid="cell6">Cell 6</td>
-          <td id="cell7" data-testid="cell7">Cell 7</td>
+          {this.renderCell(4)}
+          {this.renderCell(5)}
+          {this.renderCell(6)}
+          {this.renderCell(7)}
         </tr>
         <tr>
-          <td id="cell8" data-testid="cell8">Cell 8</td>
-          <td id="cell9" data-testid="cell9">Cell 9</td>
-          <td id="cell10" data-testid="cell10">Cell 10</td>
-          <td id="cell11" data-testid="cell11">Cell 11</td>
+          {this.renderCell(8)}
+          {this.renderCell(9)}
+          {this.renderCell(10)}
+          {this.renderCell(11)}
         </tr>
         <tr>
-          <td id="cell12" data-testid="cell12">Cell 12</td>
-          <td id="cell13" data-testid="cell13">Cell 13</td>
-          <td id="cell14" data-testid="cell14">Cell 14</td>
-          <td id="cell15" data-testid="cell15">Cell 15</td>
+          {this.renderCell(12)}
+          {this.renderCell(13)}
+          {this.renderCell(14)}
+          {this.renderCell(15)}
         </tr>
         </tbody>
     </table>
@@ -54,7 +125,7 @@ class Boggle extends React.Component {
 
 function App() {
   return (
-    <Boggle />
+    <Boggle/>
   );
 }
 
