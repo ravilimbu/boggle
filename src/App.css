@@ -43,3 +43,7 @@ table td{
     transform: rotate(360deg);
   }
 }
+
+.cl {
+  clear: both;
+}
