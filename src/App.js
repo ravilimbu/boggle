@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from './logo.svg';
+
 import AImg from './img/A.png';
 import AsImg from './img/As.png';
 import BImg from './img/B.png';
@@ -80,28 +80,84 @@ const cellNeighbors = [
                         [4,5,9,12,13],[4,5,6,8,10,12,13,14],[,5,6,7,9,11,13,14,15],[6,7,10,14,15],
                         [8,9,13],[8,9,10,12,14],[9,10,11,13,15],[10,11,14]
                       ]; // 4x4 cell neighbors
-
-const imgs = [AImg,BImg,CImg,DImg,EImg,FImg,GImg,HImg,IImg,JImg,KImg,LImg,MImg,NImg,OImg,PImg,QuImg,RsImg,SImg,TImg,UImg,VImg,WImg,XImg,YImg,ZImg];
+const imgs = [AImg,BImg,CImg,DImg,EImg,FImg,GImg,HImg,IImg,JImg,KImg,LImg,MImg,NImg,OImg,PImg,QuImg,RImg,SImg,TImg,UImg,VImg,WImg,XImg,YImg,ZImg];
 const imgSs = [AsImg,BsImg,CsImg,DsImg,EsImg,FsImg,GsImg,HsImg,IsImg,JsImg,KsImg,LsImg,MsImg,NsImg,OsImg,PsImg,QusImg,RsImg,SsImg,TsImg,UsImg,VsImg,WsImg,XsImg,YsImg,ZsImg];
-const totaltime = 20;
+const totaltime = 120;
+var letters = [];
+var selectedCell = -1;
+
+function alphaIndex (a) { 
+  return a.charCodeAt(0) - 65; 
+}
 
 class Cell extends React.Component{
   constructor(props) {
     super(props);
     var max = 5;
+
     this.state = { selected: false, selectedIndex:  Math.floor(Math.random() * max)};
+    
+    while(true){
+      
+      var count = 0;
+      this.alphabet = alphabets[this.props.index][this.state.selectedIndex];
+
+      letters.forEach((l) => {
+        if(l==this.alphabet){
+          count++;
+        }
+      });
+      console.log("Loop " + this.alphabet + " " + count);
+      if(count<2){
+        letters.push(this.alphabet);
+        break;
+      }else{
+        console.log("Tries " + count)
+        this.state.selectedIndex = Math.floor(Math.random() * max);
+      }
+    }
     this.alphabet = alphabets[this.props.index][this.state.selectedIndex];
-    // this.alphabet = alphabets[4][4] + "Img";
-    console.log(this.alphabet)
-    this.img = imgs[this.props.index];
-    this.imgS = imgSs[this.props.index];
+    console.log(this.alphabet + ' ' + alphaIndex(this.alphabet));
+    this.img = imgs[alphaIndex(this.alphabet)];
+    this.imgS = imgSs[alphaIndex(this.alphabet)];
   }
 
-  clickclick (a){
+  clickclick (a,i){
+
+    if(selectedCell==-1){
+      selectedCell = i;
+      this.setState({
+        selected: true
+      });
+    }
+    else{
+      let isNeighbhor = false;
+      console.log(cellNeighbors[selectedCell]);
+      cellNeighbors[selectedCell].forEach((c) => {
+        console.log('c ' + c + ' i ' + i);
+        if(i==c){
+          isNeighbhor = true;
+        }
+      });
+      if(isNeighbhor){
+        selectedCell = i;
+        this.setState({
+          selected: true
+        });
+      }else{
+        //reset select
+      }
+    }
+
+    this.props.onClickEvent(i);
+    
+  }
+
+  unclick (a,i){
     this.setState({
-      selected: true
+      selected: false
     });
-    // console.log(a)
+    this.props.onClickEvent(i);
   }
 
   render(){
@@ -111,17 +167,52 @@ class Cell extends React.Component{
     if(!this.state.selected){
       return (
         <td id={nameId} data-testid={nameId}>
-          <img src={this.img}  onClick={() => this.clickclick(this.alphabet)}/>
+          <img src={this.img}  onClick={() => this.clickclick(this.alphabet,this.props.index)}/>
         </td>
       );
     }else{
       return (
         <td id={nameId} data-testid={nameId}>
-          <img src={this.imgS}  onClick={() => this.clickclick(this.alphabet)}/>
+          <img src={this.imgS}  onClick={() => this.unclick(this.alphabet,this.props.index)}/>
         </td>
       );
     }
     
+  }
+}
+
+class Grid extends React.Component {
+  render (){
+    return (
+      <table>
+            <tbody>
+              <tr>
+                <Cell index={0} onClickEvent={() => this.props.onClickEvent(0)}/>
+                <Cell index={1} onClickEvent={() => this.props.onClickEvent(1)} />
+                <Cell index={2} onClickEvent={() => this.props.onClickEvent(2)} />
+                <Cell index={3} onClickEvent={() => this.props.onClickEvent(3)} />
+              </tr>
+              <tr>
+                <Cell index={4}  onClickEvent={() => this.props.onClickEvent(4)}/>
+                <Cell index={5}  onClickEvent={() => this.props.onClickEvent(5)}/>
+                <Cell index={6}  onClickEvent={() => this.props.onClickEvent(6)}/>
+                <Cell index={7}  onClickEvent={() => this.props.onClickEvent(7)}/>
+              </tr>
+              <tr>
+                <Cell index={8}  onClickEvent={() => this.props.onClickEvent(8)}/>
+                <Cell index={9}  onClickEvent={() => this.props.onClickEvent(9)}/>
+                <Cell index={10}  onClickEvent={() => this.props.onClickEvent(10)}/>
+                <Cell index={11}  onClickEvent={() => this.props.onClickEvent(11)}/>
+              </tr>
+              <tr>
+                <Cell index={12}  onClickEvent={() => this.props.onClickEvent(12)}/>
+                <Cell index={13}  onClickEvent={() => this.props.onClickEvent(13)}/>
+                <Cell index={14}  onClickEvent={() => this.props.onClickEvent(14)}/>
+                <Cell index={15}  onClickEvent={() => this.props.onClickEvent(15)}/>
+              </tr>
+            </tbody>
+          </table>
+    );
   }
 }
 
@@ -157,17 +248,13 @@ class Boggle extends React.Component {
     alert("Time is up");
   }
 
-  renderCell (i){
-    return (
-      <Cell
-        index={i}
-      />
-    );
-  }
-
   handleChange(e) {
     console.log(e.target.value)
     this.setState({ text: e.target.value });
+  }
+
+  handleClick(i) {
+    console.log("Clicked " + i);
   }
 
   render(){
@@ -182,34 +269,7 @@ class Boggle extends React.Component {
       <div className="cl"></div>
       <div>
         <div>
-          <table>
-            <tbody>
-              <tr>
-                {this.renderCell(0)}
-                {this.renderCell(1)}
-                {this.renderCell(2)}
-                {this.renderCell(3)}
-              </tr>
-              <tr>
-                {this.renderCell(4)}
-                {this.renderCell(5)}
-                {this.renderCell(6)}
-                {this.renderCell(7)}
-              </tr>
-              <tr>
-                {this.renderCell(8)}
-                {this.renderCell(9)}
-                {this.renderCell(10)}
-                {this.renderCell(11)}
-              </tr>
-              <tr>
-                {this.renderCell(12)}
-                {this.renderCell(13)}
-                {this.renderCell(14)}
-                {this.renderCell(15)}
-              </tr>
-            </tbody>
-          </table>
+          <Grid onClickEvent={i => this.handleClick(i)}/>
         </div>
         <div>
           <form onSubmit={null}>
