@@ -87,209 +87,266 @@ var letters = [];
 var selectedCell = -1;
 
 function alphaIndex (a) { 
-  return a.charCodeAt(0) - 65; 
+	return a.charCodeAt(0) - 65; 
 }
 
 class Cell extends React.Component{
-  constructor(props) {
-    super(props);
-    var max = 5;
+	constructor(props) {
+		super(props);
+		this.state = { selected: false, selectedIndex: this.props.sele};
+		this.alphabet = this.props.alphabet;
+		this.img = imgs[alphaIndex(this.alphabet)];
+		this.imgS = imgSs[alphaIndex(this.alphabet)];
+	}
 
-    this.state = { selected: false, selectedIndex:  Math.floor(Math.random() * max)};
-    
-    while(true){
-      
-      var count = 0;
-      this.alphabet = alphabets[this.props.index][this.state.selectedIndex];
+	clickclick (a,i){
+		console.log("Selected cell prev : " + selectedCell + ' now : ' + i);
+		if(selectedCell==-1){
+			// this.props.selectedCell = i;
+			this.props.callBackIndex(i, "selectedCell");
+			this.setState({
+				selected: true
+			});
+			this.props.callBackIndex(i, "clickclick");
+		}
+		else{
+			let isNeighbhor = false;
+			console.log(cellNeighbors[selectedCell]);
+			cellNeighbors[selectedCell].forEach((c) => {
+				console.log('c ' + c + ' i ' + i);
+				if(i==c){
+					isNeighbhor = true;
+				}
+			});
+			console.log("is neighbor: " + isNeighbhor);
+			if(isNeighbhor){
+				// this.props.selectedCell = i;
+				this.props.callBackIndex(i, "selectedCell");
+				this.setState({
+					selected: true
+				});
+				this.props.callBackIndex(i, "clickclick");
+			}else{
+				//reset select
+			}
+		}
 
-      letters.forEach((l) => {
-        if(l==this.alphabet){
-          count++;
-        }
-      });
-      console.log("Loop " + this.alphabet + " " + count);
-      if(count<2){
-        letters.push(this.alphabet);
-        break;
-      }else{
-        console.log("Tries " + count)
-        this.state.selectedIndex = Math.floor(Math.random() * max);
-      }
-    }
-    this.alphabet = alphabets[this.props.index][this.state.selectedIndex];
-    console.log(this.alphabet + ' ' + alphaIndex(this.alphabet));
-    this.img = imgs[alphaIndex(this.alphabet)];
-    this.imgS = imgSs[alphaIndex(this.alphabet)];
-  }
+		this.props.onClickEvent('c');
+		
 
-  clickclick (a,i){
+	}
 
-    if(selectedCell==-1){
-      selectedCell = i;
-      this.setState({
-        selected: true
-      });
-    }
-    else{
-      let isNeighbhor = false;
-      console.log(cellNeighbors[selectedCell]);
-      cellNeighbors[selectedCell].forEach((c) => {
-        console.log('c ' + c + ' i ' + i);
-        if(i==c){
-          isNeighbhor = true;
-        }
-      });
-      if(isNeighbhor){
-        selectedCell = i;
-        this.setState({
-          selected: true
-        });
-      }else{
-        //reset select
-      }
-    }
+	unclick (a,i){
+		let len = this.props.history.length;
+		let lastIndex = this.props.history[len-1];
+		if(lastIndex==i){
+			this.setState({
+				selected: false
+			});
+			// this.props.history.pop();
+			this.props.callBackIndex(i, "unclick");
+			console.log('Length : ' + len + ' ' + this.props.history);
+			
+		}
+		this.props.onClickEvent('u');
+	}
 
-    this.props.onClickEvent(i);
-    
-  }
+	render(){
 
-  unclick (a,i){
-    this.setState({
-      selected: false
-    });
-    this.props.onClickEvent(i);
-  }
+	let nameId = "cell" +  this.props.index;
+	// console.log("rendered")
+	if(!this.state.selected){
+		return (
+			<td id={nameId} data-testid={nameId}>
+			<img src={this.img}  onClick={() => this.clickclick(this.alphabet,this.props.index)}/>
+			</td>
+		);
+	}else{
+		return (
+			<td id={nameId} data-testid={nameId}>
+			<img src={this.imgS}  onClick={() => this.unclick(this.alphabet,this.props.index)}/>
+			</td>
+		);
+	}
 
-  render(){
-    
-    let nameId = "cell" +  this.props.index;
-    // console.log("rendered")
-    if(!this.state.selected){
-      return (
-        <td id={nameId} data-testid={nameId}>
-          <img src={this.img}  onClick={() => this.clickclick(this.alphabet,this.props.index)}/>
-        </td>
-      );
-    }else{
-      return (
-        <td id={nameId} data-testid={nameId}>
-          <img src={this.imgS}  onClick={() => this.unclick(this.alphabet,this.props.index)}/>
-        </td>
-      );
-    }
-    
-  }
+	}
 }
 
 class Grid extends React.Component {
-  render (){
-    return (
-      <table>
-            <tbody>
-              <tr>
-                <Cell index={0} onClickEvent={() => this.props.onClickEvent(0)}/>
-                <Cell index={1} onClickEvent={() => this.props.onClickEvent(1)} />
-                <Cell index={2} onClickEvent={() => this.props.onClickEvent(2)} />
-                <Cell index={3} onClickEvent={() => this.props.onClickEvent(3)} />
-              </tr>
-              <tr>
-                <Cell index={4}  onClickEvent={() => this.props.onClickEvent(4)}/>
-                <Cell index={5}  onClickEvent={() => this.props.onClickEvent(5)}/>
-                <Cell index={6}  onClickEvent={() => this.props.onClickEvent(6)}/>
-                <Cell index={7}  onClickEvent={() => this.props.onClickEvent(7)}/>
-              </tr>
-              <tr>
-                <Cell index={8}  onClickEvent={() => this.props.onClickEvent(8)}/>
-                <Cell index={9}  onClickEvent={() => this.props.onClickEvent(9)}/>
-                <Cell index={10}  onClickEvent={() => this.props.onClickEvent(10)}/>
-                <Cell index={11}  onClickEvent={() => this.props.onClickEvent(11)}/>
-              </tr>
-              <tr>
-                <Cell index={12}  onClickEvent={() => this.props.onClickEvent(12)}/>
-                <Cell index={13}  onClickEvent={() => this.props.onClickEvent(13)}/>
-                <Cell index={14}  onClickEvent={() => this.props.onClickEvent(14)}/>
-                <Cell index={15}  onClickEvent={() => this.props.onClickEvent(15)}/>
-              </tr>
-            </tbody>
-          </table>
-    );
-  }
+
+	constructor(props) {
+		super(props);
+		this.state = {history : [], selectedCell:-1};
+		this.callBackWithIndex=this.callBackWithIndex.bind(this);
+		this.gridLetters = [];
+		this.gridSelectedCell = -1;
+		this.gridAlphabets = [
+			this.genIndex(0), this.genIndex(1), this.genIndex(2), this.genIndex(3),
+			this.genIndex(4), this.genIndex(5), this.genIndex(6), this.genIndex(7),
+			this.genIndex(8), this.genIndex(9), this.genIndex(10), this.genIndex(11),
+			this.genIndex(12), this.genIndex(13), this.genIndex(14), this.genIndex(15)
+		];
+		this.selectedCell = -1;
+		
+	}
+  
+	genIndex (i) {
+		let sides = 5;
+		let selectedIndex = Math.floor(Math.random() * sides);
+		var alphabet = '';
+		while(true){
+			
+			var count = 0;
+			alphabet = alphabets[i][selectedIndex];
+
+			this.gridLetters.forEach((l) => {
+				if(l==alphabet){
+					count++;
+				}
+			});
+			console.log("Loop " + alphabet + " " + count);
+			if(count<2){
+				this.gridLetters.push(alphabet);
+				break;
+			}else{
+				console.log("Tries " + count)
+				selectedIndex = Math.floor(Math.random() * sides);
+			}
+		}
+		// alphabet = alphabets[i][selectedIndex];
+		// console.log(" GRID : " + alphabet + ' ' + alphaIndex(alphabet));
+		// this.img = imgs[alphaIndex(this.alphabet)];
+		// this.imgS = imgSs[alphaIndex(this.alphabet)];
+		return alphabet;
+	}
+
+	callBackWithIndex(i,action) {
+		if(action=="unclick"){
+			this.state.history.pop();
+			selectedCell = this.state.history[this.state.history.length-1];
+			if(this.state.history.length==0){
+				selectedCell = -1;
+			}
+		}else if(action=="clickclick"){
+			console.log('debug : '+i);
+			this.state.history.push(i);
+			console.log(this.state.history);
+		}else if(action=="selectedCell"){
+			selectedCell = i;
+			console.log("here  sc " + selectedCell + " i " + i);
+		}
+		
+  	}
+
+	render (){
+		
+		return (
+			<table>
+				<tbody>
+				<tr>
+					<Cell selectedCell={this.selectedCell} history={this.state.history} index={0} alphabet={this.gridAlphabets[0]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent}/>
+					<Cell selectedCell={this.selectedCell} history={this.state.history} index={1} alphabet={this.gridAlphabets[1]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent} />
+					<Cell selectedCell={this.selectedCell} history={this.state.history} index={2} alphabet={this.gridAlphabets[2]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent} />
+					<Cell selectedCell={this.selectedCell} history={this.state.history} index={3} alphabet={this.gridAlphabets[3]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent} />
+				</tr>
+				<tr>
+					<Cell selectedCell={this.selectedCell} history={this.state.history} index={4} alphabet={this.gridAlphabets[4]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent}/>
+					<Cell selectedCell={this.selectedCell} history={this.state.history} index={5} alphabet={this.gridAlphabets[5]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent}/>
+					<Cell selectedCell={this.selectedCell} history={this.state.history} index={6} alphabet={this.gridAlphabets[6]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent}/>
+					<Cell selectedCell={this.selectedCell} history={this.state.history} index={7} alphabet={this.gridAlphabets[7]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent}/>
+				</tr>
+				<tr>
+					<Cell selectedCell={this.selectedCell} history={this.state.history} index={8} alphabet={this.gridAlphabets[8]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
+					<Cell selectedCell={this.selectedCell} history={this.state.history} index={9} alphabet={this.gridAlphabets[9]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
+					<Cell selectedCell={this.selectedCell} history={this.state.history} index={10} alphabet={this.gridAlphabets[10]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
+					<Cell selectedCell={this.selectedCell} ihistory={this.state.history} index={11} alphabet={this.gridAlphabets[11]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
+				</tr>
+				<tr>
+					<Cell selectedCell={this.selectedCell} history={this.state.history} index={12} alphabet={this.gridAlphabets[12]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
+					<Cell selectedCell={this.selectedCell} history={this.state.history} index={13} alphabet={this.gridAlphabets[13]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
+					<Cell selectedCell={this.selectedCell} history={this.state.history} index={14} alphabet={this.gridAlphabets[14]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
+					<Cell selectedCell={this.selectedCell} history={this.state.history} index={15} alphabet={this.gridAlphabets[15]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
+				</tr>
+				</tbody>
+			</table>
+		);
+	}
 }
 
 class Boggle extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { start: false, text: "", seconds: 0, timer: totaltime };
-    this.handleChange = this.handleChange.bind(this);
-  }
+	constructor(props) {
+		super(props);
+		this.state = { start: false, text: "", seconds: 0, timer: totaltime };
+		this.handleChange = this.handleChange.bind(this);
+	}
 
-  tick() {
-    this.setState(state => ({
-      seconds: state.seconds + 1
-    }));
-  }
+	tick() {
+		this.setState(state => ({
+			seconds: state.seconds + 1
+		}));
+	}
 
-  componentDidMount() {
-    this.interval = setInterval(() => this.tick(), 1000);
-  }
+	componentDidMount() {
+		this.interval = setInterval(() => this.tick(), 1000);
+	}
 
-  componentWillUnmount() {
-    clearInterval(this.interval);
-  }
+	componentWillUnmount() {
+		clearInterval(this.interval);
+	}
 
-  componentDidUpdate(){
-    if(this.state.timer==0){
-      this.timeUp();
-    }
-  }
+	componentDidUpdate(){
+		if(this.state.timer==0){
+			this.timeUp();
+		}
+	}
 
-  timeUp(){
-    clearInterval(this.interval);
-    alert("Time is up");
-  }
+	timeUp(){
+		clearInterval(this.interval);
+		alert("Time is up");
+	}
 
-  handleChange(e) {
-    console.log(e.target.value)
-    this.setState({ text: e.target.value });
-  }
+	handleChange(e) {
+		console.log(e.target.value)
+		this.setState({ text: e.target.value });
+	}
 
-  handleClick(i) {
-    console.log("Clicked " + i);
-  }
+	handleClick(i) {
+	// console.log("Clicked " + i);
+	}
 
-  render(){
-    let time = (totaltime - this.state.seconds);
-    this.state.timer = time;
-    return(
-    <div>
-      <div>
-        Time: {time}
-      </div>
-      <div></div>
-      <div className="cl"></div>
-      <div>
-        <div>
-          <Grid onClickEvent={i => this.handleClick(i)}/>
-        </div>
-        <div>
-          <form onSubmit={null}>
-            <label>
-              <small>Enter text or click above and submit.</small>
-            </label>
-            <br></br>
-            <input onChange={this.handleChange} value={this.state.text}
-            />
-            <button>
-              Submit
-            </button>
-          </form>
-        </div>
-        
-      </div>
-      <div></div>
-    </div>
-    );
-    }
+	render(){
+		let time = (totaltime - this.state.seconds);
+		this.state.timer = time;
+		return(
+			<div>
+				<div>
+				Time: {time}
+				</div>
+				<div></div>
+				<div className="cl"></div>
+				<div>
+				<div>
+				<Grid onClickEvent={this.handleClick}/>
+				</div>
+				<div>
+				
+					<label>
+					<small>Enter text or click above and submit.</small>
+					</label>
+					<br></br>
+					<input onChange={this.handleChange} value={this.state.text}
+					/>
+					<button>
+					Submit
+					</button>
+				
+				</div>
+				
+				</div>
+				<div></div>
+			</div>
+		);
+	}
 }
 
 function App() {
