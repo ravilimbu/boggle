@@ -56,6 +56,8 @@ import ZsImg from './img/Zs.png';
 import './App.css';
 
 // const e = React.createElement 
+
+//Arrays of alphabets for each cell, each element have 6 letter representing 6 sides of the dice.
 const alphabets = [
                     ['R','I','F','O','B','X'],
                     ['I','F','E','H','E','Y'],
@@ -73,30 +75,38 @@ const alphabets = [
                     ['R','A','L','E','S','C'],
                     ['U','W','I','L','R','G'],
                     ['P','A','C','E','M','D'],
-                  ];
+				  ];
+				  
+//Cell neighbor pre defined for validating next click 				  
 const cellNeighbors = [
                         [1,4,5],[0,2,4,5,6],[1,3,5,6,7],[2,6,7],
                         [0,1,5,8,9],[0,1,2,4,6,8,9,10],[1,2,3,5,7,9,10,11],[2,3,6,10,11],
                         [4,5,9,12,13],[4,5,6,8,10,12,13,14],[,5,6,7,9,11,13,14,15],[6,7,10,14,15],
                         [8,9,13],[8,9,10,12,14],[9,10,11,13,15],[10,11,14]
-                      ]; // 4x4 cell neighbors
+					  ]; // 4x4 cell neighbors
+					  
+//Image variables stored in array for easy calling...					  
 const imgs = [AImg,BImg,CImg,DImg,EImg,FImg,GImg,HImg,IImg,JImg,KImg,LImg,MImg,NImg,OImg,PImg,QuImg,RImg,SImg,TImg,UImg,VImg,WImg,XImg,YImg,ZImg];
 const imgSs = [AsImg,BsImg,CsImg,DsImg,EsImg,FsImg,GsImg,HsImg,IsImg,JsImg,KsImg,LsImg,MsImg,NsImg,OsImg,PsImg,QusImg,RsImg,SsImg,TsImg,UsImg,VsImg,WsImg,XsImg,YsImg,ZsImg];
-const totaltime = 120;
-var letters = [];
-var selectedCell = -1;
 
+const totaltime = 120; // Game duration
+var letters = [];
+var selectedCell = -1; // 
+
+//Get alphabet position from 1-26
 function alphaIndex (a) { 
 	return a.charCodeAt(0) - 65; 
 }
 
+//Cell component, handle click, callback Grid to send selected alphabet.
 class Cell extends React.Component{
 	constructor(props) {
 		super(props);
-		this.state = { selected: false, selectedIndex: this.props.sele};
+		this.state = { selected: false, selectedIndex: this.props.selectedCell};
 		this.alphabet = this.props.alphabet;
 		this.img = imgs[alphaIndex(this.alphabet)];
 		this.imgS = imgSs[alphaIndex(this.alphabet)];
+		console.log("Cell render : " + this.props.alphabet);
 	}
 
 	clickclick (a,i){
@@ -104,9 +114,6 @@ class Cell extends React.Component{
 		if(selectedCell==-1){
 			// this.props.selectedCell = i;
 			this.props.callBackIndex(i, "selectedCell");
-			this.setState({
-				selected: true
-			});
 			this.props.callBackIndex(i, "clickclick");
 		}
 		else{
@@ -131,7 +138,7 @@ class Cell extends React.Component{
 			}
 		}
 
-		this.props.onClickEvent('c');
+		// this.props.onClickEvent('c');
 		
 
 	}
@@ -140,44 +147,54 @@ class Cell extends React.Component{
 		let len = this.props.history.length;
 		let lastIndex = this.props.history[len-1];
 		if(lastIndex==i){
-			this.setState({
-				selected: false
-			});
+			// this.setState({
+			// 	selected: false
+			// });
 			// this.props.history.pop();
 			this.props.callBackIndex(i, "unclick");
 			console.log('Length : ' + len + ' ' + this.props.history);
 			
 		}
-		this.props.onClickEvent('u');
+		// this.props.onClickEvent('u');
 	}
 
 	render(){
 
-	let nameId = "cell" +  this.props.index;
-	// console.log("rendered")
-	if(!this.state.selected){
-		return (
-			<td id={nameId} data-testid={nameId}>
-			<img src={this.img}  onClick={() => this.clickclick(this.alphabet,this.props.index)}/>
-			</td>
-		);
-	}else{
-		return (
-			<td id={nameId} data-testid={nameId}>
-			<img src={this.imgS}  onClick={() => this.unclick(this.alphabet,this.props.index)}/>
-			</td>
-		);
-	}
+		let nameId = "cell" +  this.props.index;
+		// console.log("rendered")
+		if(!this.props.isSelected){
+			return (
+				<td id={nameId} data-testid={nameId}>
+				<img src={this.img}  onClick={() => this.clickclick(this.alphabet,this.props.index)}/>
+				</td>
+			);
+		}else{
+			return (
+				<td id={nameId} data-testid={nameId}>
+				<img src={this.imgS}  onClick={() => this.unclick(this.alphabet,this.props.index)}/>
+				</td>
+			);
+		}
 
 	}
 }
 
+//Grid component, has grid information and handle all alphabets cell.
 class Grid extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = {history : [], selectedCell:-1};
-		this.callBackWithIndex=this.callBackWithIndex.bind(this);
+		this.state = {
+			history : [], 
+			selectedCell:-1, 
+			cellSelected:[	false,false,false,false,
+							false,false,false,false,
+							false,false,false,false,
+							false,false,false,false
+						],
+			text: ""
+		}; //TODO: add all cells state here instead in cell intself
+		
 		this.gridLetters = [];
 		this.gridSelectedCell = -1;
 		this.gridAlphabets = [
@@ -187,7 +204,10 @@ class Grid extends React.Component {
 			this.genIndex(12), this.genIndex(13), this.genIndex(14), this.genIndex(15)
 		];
 		this.selectedCell = -1;
-		
+		console.log("Grid init : " + this.props.btext);
+		this.onoff=false;
+		this.callBackWithIndex=this.callBackWithIndex.bind(this);
+		this.enterUpdateSync = 1;
 	}
   
 	genIndex (i) {
@@ -220,22 +240,83 @@ class Grid extends React.Component {
 		return alphabet;
 	}
 
+	componentDidMount() {
+		// console.log("Grid text: " + this.props.text);
+
+	}
+
+	componentWillUnmount() {
+		
+	}
+
+	componentDidUpdate(){
+		if(this.enterUpdateSync==this.props.updateSync){ //Prevent infinite loop.
+			this.enterUpdateSync++;
+			var letters = this.props.text.split("");
+			console.log("Grid text: " + this.props.text + " count : " + letters.length);
+			let cs = [];
+			for(var x=0;x<16;x++){
+				cs[x] = this.state.cellSelected[x];
+			}
+			for(var y=0;y<letters.length;y++){
+				for(var x=0;x<16;x++){
+					if(!this.state.cellSelected[x]){
+						if(letters[y]==this.gridAlphabets[x]){
+							cs[x] = true;
+						}
+					}
+				}
+			}
+
+			this.setState({
+				cellSelected: cs
+			});
+		}
+	
+	}
+
 	callBackWithIndex(i,action) {
 		if(action=="unclick"){
 			this.state.history.pop();
 			selectedCell = this.state.history[this.state.history.length-1];
+			let cs = [];
+			for(var x=0;x<16;x++){
+				if(x!=i){
+					cs[x] = this.state.cellSelected[x];
+				}else{
+					cs[x] = false;
+				}
+			}
+			this.setState({
+				cellSelected: cs
+			});
 			if(this.state.history.length==0){
 				selectedCell = -1;
 			}
 		}else if(action=="clickclick"){
 			console.log('debug : '+i);
 			this.state.history.push(i);
+			let cs = [];
+			for(var x=0;x<16;x++){
+				if(x!=i){
+					cs[x] = this.state.cellSelected[x];
+				}else{
+					cs[x] = true;
+				}
+			}
+			this.setState({
+				cellSelected: cs
+			});
 			console.log(this.state.history);
 		}else if(action=="selectedCell"){
 			selectedCell = i;
 			console.log("here  sc " + selectedCell + " i " + i);
 		}
-		
+		var words = "";
+		this.state.history.forEach(element => {
+			words = words + this.gridAlphabets[element];
+		});
+		this.props.onClickEvent(words);
   	}
 
 	render (){
@@ -244,28 +325,28 @@ class Grid extends React.Component {
 			<table>
 				<tbody>
 				<tr>
-					<Cell selectedCell={this.selectedCell} history={this.state.history} index={0} alphabet={this.gridAlphabets[0]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent}/>
-					<Cell selectedCell={this.selectedCell} history={this.state.history} index={1} alphabet={this.gridAlphabets[1]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent} />
-					<Cell selectedCell={this.selectedCell} history={this.state.history} index={2} alphabet={this.gridAlphabets[2]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent} />
-					<Cell selectedCell={this.selectedCell} history={this.state.history} index={3} alphabet={this.gridAlphabets[3]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent} />
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[0]} history={this.state.history} index={0} alphabet={this.gridAlphabets[0]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[1]} history={this.state.history} index={1} alphabet={this.gridAlphabets[1]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[2]} history={this.state.history} index={2} alphabet={this.gridAlphabets[2]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[3]} history={this.state.history} index={3} alphabet={this.gridAlphabets[3]} callBackIndex={this.callBackWithIndex}/>
 				</tr>
 				<tr>
-					<Cell selectedCell={this.selectedCell} history={this.state.history} index={4} alphabet={this.gridAlphabets[4]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent}/>
-					<Cell selectedCell={this.selectedCell} history={this.state.history} index={5} alphabet={this.gridAlphabets[5]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent}/>
-					<Cell selectedCell={this.selectedCell} history={this.state.history} index={6} alphabet={this.gridAlphabets[6]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent}/>
-					<Cell selectedCell={this.selectedCell} history={this.state.history} index={7} alphabet={this.gridAlphabets[7]} callBackIndex={this.callBackWithIndex} onClickEvent={this.props.onClickEvent}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[4]} history={this.state.history} index={4} alphabet={this.gridAlphabets[4]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[5]} history={this.state.history} index={5} alphabet={this.gridAlphabets[5]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[6]} history={this.state.history} index={6} alphabet={this.gridAlphabets[6]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[7]} history={this.state.history} index={7} alphabet={this.gridAlphabets[7]} callBackIndex={this.callBackWithIndex}/>
 				</tr>
 				<tr>
-					<Cell selectedCell={this.selectedCell} history={this.state.history} index={8} alphabet={this.gridAlphabets[8]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
-					<Cell selectedCell={this.selectedCell} history={this.state.history} index={9} alphabet={this.gridAlphabets[9]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
-					<Cell selectedCell={this.selectedCell} history={this.state.history} index={10} alphabet={this.gridAlphabets[10]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
-					<Cell selectedCell={this.selectedCell} ihistory={this.state.history} index={11} alphabet={this.gridAlphabets[11]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[8]} history={this.state.history} index={8} alphabet={this.gridAlphabets[8]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[9]} history={this.state.history} index={9} alphabet={this.gridAlphabets[9]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[10]} history={this.state.history} index={10} alphabet={this.gridAlphabets[10]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[11]} history={this.state.history} index={11} alphabet={this.gridAlphabets[11]} callBackIndex={this.callBackWithIndex}/>
 				</tr>
 				<tr>
-					<Cell selectedCell={this.selectedCell} history={this.state.history} index={12} alphabet={this.gridAlphabets[12]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
-					<Cell selectedCell={this.selectedCell} history={this.state.history} index={13} alphabet={this.gridAlphabets[13]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
-					<Cell selectedCell={this.selectedCell} history={this.state.history} index={14} alphabet={this.gridAlphabets[14]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
-					<Cell selectedCell={this.selectedCell} history={this.state.history} index={15} alphabet={this.gridAlphabets[15]} callBackIndex={this.callBackWithIndex}  onClickEvent={this.props.onClickEvent}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[12]} history={this.state.history} index={12} alphabet={this.gridAlphabets[12]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[13]} history={this.state.history} index={13} alphabet={this.gridAlphabets[13]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[14]} history={this.state.history} index={14} alphabet={this.gridAlphabets[14]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[15]} history={this.state.history} index={15} alphabet={this.gridAlphabets[15]} callBackIndex={this.callBackWithIndex}/>
 				</tr>
 				</tbody>
 			</table>
@@ -276,8 +357,10 @@ class Grid extends React.Component {
 class Boggle extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { start: false, text: "", seconds: 0, timer: totaltime };
+		this.state = { start: false, text: "", seconds: 0, timer: totaltime};
 		this.handleChange = this.handleChange.bind(this);
+		this.handleClick = this.handleClick.bind(this);
+		this.enterUpdateSync = 0;
 	}
 
 	tick() {
@@ -286,8 +369,40 @@ class Boggle extends React.Component {
 		}));
 	}
 
-	componentDidMount() {
+	async postData(){
+		try {
+			// let result  = await fetch ('https://webhook.site/c9d3cbd8-4fc4-406b-b427-28b974b429ec',
+			// {
+			// 	method : 'post',
+			// 	mode : 'no-cors',
+			// 	headers : {
+			// 		'Accept': 'application/json',
+			// 		'Content-type': 'application/json',
+
+			// 	},
+			// 	body: JSON.stringify(
+			// 		{
+			// 			letters: 'abc'
+			// 		}
+			// 	)
+			// }
+			// );
+			// console.log(result);
+		} catch (e) {
+			console.log(e)
+		}
+	}
+
+	startBoggle (){
+		this.setState({ start: true });
 		this.interval = setInterval(() => this.tick(), 1000);
+		console.log("Game started")
+	}
+
+	componentDidMount() {
+		
+		this.postData();
+		console.log('Async end!!!');
 	}
 
 	componentWillUnmount() {
@@ -306,53 +421,80 @@ class Boggle extends React.Component {
 	}
 
 	handleChange(e) {
-		console.log(e.target.value)
-		this.setState({ text: e.target.value });
+		const regex = RegExp('^[A-Z]{0,}$'); // Check if entered value is between A-Z only
+		if(regex.test(e.target.value.toUpperCase())){
+			this.enterUpdateSync++;
+			this.setState({ text: e.target.value.toUpperCase() });
+		}else{
+			console.error(e.target.value)
+		}
+		
 	}
 
 	handleClick(i) {
-	// console.log("Clicked " + i);
+		// console.log("From boggle component: " + i);
+		this.setState({ text: i });
 	}
 
 	render(){
 		let time = (totaltime - this.state.seconds);
 		this.state.timer = time;
-		return(
-			<div>
+
+		if(!this.state.start){
+			return (
 				<div>
-				Time: {time}
+					<button onClick={() => this.startBoggle()}>Start Game</button>
 				</div>
-				<div></div>
-				<div className="cl"></div>
+			);
+		}else {
+			let btext = this.state.text;
+			// console.log("btext: " + btext);
+			return(
 				<div>
-				<div>
-				<Grid onClickEvent={this.handleClick}/>
-				</div>
-				<div>
-				
-					<label>
-					<small>Enter text or click above and submit.</small>
-					</label>
-					<br></br>
-					<input onChange={this.handleChange} value={this.state.text}
+					<div>
+					Time: {time}
+					</div>
+					<div></div>
+					<div className="cl"></div>
+					<div>
+					<div>
+					{this.state.text}
+
+					<Grid 	text={btext}
+							onClickEvent={this.handleClick} 
+							updateSync={this.enterUpdateSync}
 					/>
-					<button>
-					Submit
-					</button>
-				
+					
+					</div>
+					<div>
+					
+						<label>
+						<small>Enter text or click above and submit.</small>
+						</label>
+						<br></br>
+						<input onChange={this.handleChange} value={this.state.text}
+						/>
+						<button>
+						Submit
+						</button>
+					
+					</div>
+					
+					</div>
+					<div></div>
 				</div>
-				
-				</div>
-				<div></div>
-			</div>
-		);
+			);
+		}
+
+		
 	}
 }
 
 function App() {
-  return (
-    <Boggle/>
-  );
+
+	return (
+		<Boggle/>
+	);
 }
 
 export default App;
