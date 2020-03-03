@@ -253,24 +253,36 @@ class Grid extends React.Component {
 		if(this.enterUpdateSync==this.props.updateSync){ //Prevent infinite loop.
 			this.enterUpdateSync++;
 			var letters = this.props.text.split("");
-			console.log("Grid text: " + this.props.text + " count : " + letters.length);
+
 			let cs = [];
 			for(var x=0;x<16;x++){
 				cs[x] = this.state.cellSelected[x];
 			}
-			for(var y=0;y<letters.length;y++){
-				for(var x=0;x<16;x++){
-					if(!this.state.cellSelected[x]){
-						if(letters[y]==this.gridAlphabets[x]){
-							cs[x] = true;
+			
+			if(letters.length>this.state.history.length){
+				console.log("Grid text: " + this.props.text + " count : " + letters.length);
+				for(var y=letters.length-1;y<letters.length;y++){
+					for(var x=0;x<16;x++){
+						if(!this.state.cellSelected[x]){
+							if(letters[y]==this.gridAlphabets[x]){
+								cs[x] = true;
+								this.state.history.push(x);
+								break;
+							}
 						}
 					}
 				}
+			}
+			else if(letters.length<this.state.history.length){
+				let lastIndex = this.state.history[this.state.history.length-1];
+				cs[lastIndex] = false;
+				this.state.history.pop();
 			}
 
 			this.setState({
 				cellSelected: cs
 			});
+			console.log(this.state.history);
 		}
 	
 	}
