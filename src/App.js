@@ -67,7 +67,7 @@ const alphabets = [
                     ['L','U','P','E','T','S'],
                     ['A','C','I','T','O','A'],
                     ['Y','L','G','K','U','E'],
-                    ['Qu','B','M','J','O','A'],
+                    ['QU','B','M','J','O','A'],
                     ['E','H','I','S','P','N'],
                     ['V','E','T','I','G','N'],
                     ['B','A','L','I','Y','T'],
@@ -197,11 +197,17 @@ class Grid extends React.Component {
 		
 		this.gridLetters = [];
 		this.gridSelectedCell = -1;
+		// this.gridAlphabets = [
+		// 	this.genIndex(0), this.genIndex(1), this.genIndex(2), this.genIndex(3),
+		// 	this.genIndex(4), this.genIndex(5), this.genIndex(6), this.genIndex(7),
+		// 	this.genIndex(8), this.genIndex(9), this.genIndex(10), this.genIndex(11),
+		// 	this.genIndex(12), this.genIndex(13), this.genIndex(14), this.genIndex(15)
+		// ];
 		this.gridAlphabets = [
-			this.genIndex(0), this.genIndex(1), this.genIndex(2), this.genIndex(3),
-			this.genIndex(4), this.genIndex(5), this.genIndex(6), this.genIndex(7),
-			this.genIndex(8), this.genIndex(9), this.genIndex(10), this.genIndex(11),
-			this.genIndex(12), this.genIndex(13), this.genIndex(14), this.genIndex(15)
+			'I', 'I', 'D', 'N',
+			'H', 'T', 'T', 'K',
+			'B', 'H', 'E', 'L',
+			'V', 'E', 'L', 'A'
 		];
 		this.selectedCell = -1;
 		console.log("Grid init : " + this.props.btext);
@@ -258,33 +264,66 @@ class Grid extends React.Component {
 			for(var x=0;x<16;x++){
 				cs[x] = this.state.cellSelected[x];
 			}
-			
 			if(letters.length>this.state.history.length){
-				console.log("Grid text: " + this.props.text + " count : " + letters.length);
-				for(var y=letters.length-1;y<letters.length;y++){
-					for(var x=0;x<16;x++){
-						if(!this.state.cellSelected[x]){
-							if(letters[y]==this.gridAlphabets[x]){
-								cs[x] = true;
-								this.state.history.push(x);
-								break;
+
+				//Entering A-Z
+				if(letters.length==1){
+					console.log("Grid first text: " + this.props.text + " count : " + letters.length);
+					for(var y=letters.length-1;y<letters.length;y++){//Only take the most recent one.
+						for(var gridIndex=0;gridIndex<16;gridIndex++){//Loop through the grid
+							if(!this.state.cellSelected[gridIndex]){//Check if cell is selected
+								if(letters[y]==this.gridAlphabets[gridIndex]){
+									cs[gridIndex] = true;
+									this.state.history.push(gridIndex);
+									break;
+								}
 							}
 						}
 					}
 				}
+				else{
+					console.log("Grid n text: " + this.props.text + " count : " + letters.length);
+					const neighbors = cellNeighbors[this.state.history[this.state.history.length-1]];
+					for(var y=letters.length-1;y<letters.length;y++){//Only take the most recent one.
+						
+						//Loop only through cell neighbors
+						for(var neighborIndex=0;neighborIndex<neighbors.length;neighborIndex++){
+							// for(var gridIndex=0;gridIndex<16;gridIndex++){//Loop through the grid
+								if(!this.state.cellSelected[neighbors[neighborIndex]]){//Check if cell is selected
+									if(letters[y]==this.gridAlphabets[neighbors[neighborIndex]]){
+										cs[neighbors[neighborIndex]] = true;
+										this.state.history.push(neighbors[neighborIndex]);
+										break;
+									}
+								}
+							// }
+						}
+
+					}
+				}
 			}
+			//Backspace
 			else if(letters.length<this.state.history.length){
 				let lastIndex = this.state.history[this.state.history.length-1];
 				cs[lastIndex] = false;
+				console.log("last index : " + lastIndex);
 				this.state.history.pop();
 			}
 
 			this.setState({
 				cellSelected: cs
 			});
+			
 			console.log(this.state.history);
+			if(letters.length==1&&letters.length!=this.state.history.length){
+				console.log("Clear grid")
+			}
+			else if(letters.lenght>0&&letters.length!=this.state.history.length){ //Try different combination
+				console.log("Try different combination")
+			}
+
 		}
-	
+
 	}
 
 	callBackWithIndex(i,action) {
