@@ -1,6 +1,6 @@
 import React from 'react';
 import Cell from './Cell';
-import {alphabets,cellNeighbors} from './constants';
+import {alphabets,cellNeighbors,ACTIONS} from './constants';
 
 //Grid component, has grid information and handle all alphabets cell.
 class Grid extends React.Component {
@@ -29,7 +29,7 @@ class Grid extends React.Component {
 		this.gridAlphabets = [
 			'I', 'I', 'D', 'N',
 			'H', 'T', 'T', 'K',
-			'B', 'H', 'E', 'L',
+			'B', 'Qu', 'E', 'L',
 			'V', 'E', 'L', 'A'
 		];
 		this.selectedCell = -1;
@@ -81,39 +81,81 @@ class Grid extends React.Component {
 	componentDidUpdate(){
 		if(this.enterUpdateSync==this.props.updateSync){ //Prevent infinite loop.
 			this.enterUpdateSync++;
-			var letters = this.props.text.split("");
+			let letters = this.props.text.split("");
+
+			let words = [];
+			for(var i=0;i<letters.length;i++){
+				if(letters[i]!="Q"){
+					words.push(letters[i]);
+				}else{
+					if ((i+1)<letters.length){
+						if(letters[i+1]=="U"){
+							words.push(letters[i]+letters[i+1]);
+							i++;
+						}else{
+							// words.push(letters[i]);
+							console.log("inside 1");
+							this.props.callBackBoggle(ACTIONS.POP1);
+							// return;
+						}
+					}else{
+						console.log("inside 2");
+						words.push(letters[i]);
+					}
+				}
+			}
+
+			
 
 			let cs = [];
 			for(var x=0;x<16;x++){
 				cs[x] = this.state.cellSelected[x];
 			}
-			if(letters.length>this.state.history.length){
 
+			const regexQ = RegExp('^Q$','i'); // Check for qu
+			const regexQu = RegExp('^QU$','i'); // Check for qu
+
+
+			console.log(words + " word length " + words.length + " - " + this.state.history.length);
+
+			if(words.length>this.state.history.length){
+				console.log("in 1");
 				//Entering A-Z
-				if(letters.length==1){
-					console.log("Grid first text: " + this.props.text + " count : " + letters.length);
-					for(var y=letters.length-1;y<letters.length;y++){//Only take the most recent one.
+				if(words.length==1){
+					                    
+					console.log("Grid first text: " + this.props.text + " count : " + words.length);
+					for(var y=words.length-1;y<words.length;y++){//Only take the most recent one.
 						for(var gridIndex=0;gridIndex<16;gridIndex++){//Loop through the grid
-							if(!this.state.cellSelected[gridIndex]){//Check if cell is selected
-								if(letters[y]==this.gridAlphabets[gridIndex]){
+							if(!cs[gridIndex]){//Check if cell is selected
+								console.log(words[y].toUpperCase()+"\t"+this.gridAlphabets[gridIndex]);
+								if(words[y]==this.gridAlphabets[gridIndex].toUpperCase()){
 									cs[gridIndex] = true;
 									this.state.history.push(gridIndex);
 									break;
-								}
+                                }
+                                // let regex = RegExp(letters[y]+letters[y-1],'i'); // Check if entered value is between A-Z only
+                                // if(regex.test(this.gridAlphabets[gridIndex])){
+                                //     cs[gridIndex] = true;
+								// 	this.state.history.push(gridIndex);
+								// 	break;
+                                // }
 							}
 						}
 					}
 				}
 				else{
-					console.log("Grid n text: " + this.props.text + " count : " + letters.length);
-					const neighbors = cellNeighbors[this.state.history[this.state.history.length-1]];
-					for(var y=letters.length-1;y<letters.length;y++){//Only take the most recent one.
-						
+					console.log("in 2");
+					console.log("Grid n text: " + this.props.text + " count : " + words.length);
+                    const neighbors = cellNeighbors[this.state.history[this.state.history.length-1]];
+					let found = false;
+					console.log("cell neighbors : " +this.state.history[this.state.history.length-1]+ " " + cellNeighbors[this.state.history[this.state.history.length-1]]);
+					for(var y=words.length-1;y<words.length;y++){//Only take the most recent one.
 						//Loop only through cell neighbors
 						for(var neighborIndex=0;neighborIndex<neighbors.length;neighborIndex++){
 							// for(var gridIndex=0;gridIndex<16;gridIndex++){//Loop through the grid
 								if(!this.state.cellSelected[neighbors[neighborIndex]]){//Check if cell is selected
-									if(letters[y]==this.gridAlphabets[neighbors[neighborIndex]]){
+									if(words[y]==this.gridAlphabets[neighbors[neighborIndex]].toUpperCase()){
+                                        found = true;
 										cs[neighbors[neighborIndex]] = true;
 										this.state.history.push(neighbors[neighborIndex]);
 										break;
@@ -122,11 +164,20 @@ class Grid extends React.Component {
 							// }
 						}
 
-					}
+                    }
+                    if(!found){
+						let lastWord = words[words.length-1];
+						console.log(lastWord);
+						if(lastWord=="QU"){
+							this.props.callBackBoggle(ACTIONS.POP2);
+						}else{
+                        	this.props.callBackBoggle(ACTIONS.POP1);
+						}
+                    }
 				}
 			}
 			//Backspace
-			else if(letters.length<this.state.history.length){
+			else if(words.length<this.state.history.length){
 				let lastIndex = this.state.history[this.state.history.length-1];
 				cs[lastIndex] = false;
 				console.log("last index : " + lastIndex);
@@ -136,7 +187,8 @@ class Grid extends React.Component {
 			this.setState({
 				cellSelected: cs
 			});
-			
+			console.log(cs);
+
 			console.log(this.state.history);
 			if(letters.length==1&&letters.length!=this.state.history.length){
 				console.log("Clear grid")

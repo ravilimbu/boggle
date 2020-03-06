@@ -76,7 +76,7 @@ export const alphabets = [
 export const cellNeighbors = [
     [1,4,5],[0,2,4,5,6],[1,3,5,6,7],[2,6,7],
     [0,1,5,8,9],[0,1,2,4,6,8,9,10],[1,2,3,5,7,9,10,11],[2,3,6,10,11],
-    [4,5,9,12,13],[4,5,6,8,10,12,13,14],[,5,6,7,9,11,13,14,15],[6,7,10,14,15],
+    [4,5,9,12,13],[4,5,6,8,10,12,13,14],[5,6,7,9,11,13,14,15],[6,7,10,14,15],
     [8,9,13],[8,9,10,12,14],[9,10,11,13,15],[10,11,14]
   ]; // 4x4 cell neighbors
   
@@ -85,3 +85,8 @@ export const imgs = [AImg,BImg,CImg,DImg,EImg,FImg,GImg,HImg,IImg,JImg,KImg,LImg
 export const imgSs = [AsImg,BsImg,CsImg,DsImg,EsImg,FsImg,GsImg,HsImg,IsImg,JsImg,KsImg,LsImg,MsImg,NsImg,OsImg,PsImg,QusImg,RsImg,SsImg,TsImg,UsImg,VsImg,WsImg,XsImg,YsImg,ZsImg];
 
 export const totaltime = 120; // Game duration
+export const ACTIONS = {
+    POP1: 1,
+    POP2: 2
+  };
+  
