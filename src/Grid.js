@@ -17,7 +17,7 @@ class Grid extends React.Component {
 						],
 			text: ""
 		}; //TODO: add all cells state here instead in cell intself
-		
+		this.history = [];
 		this.gridLetters = [];
 		this.gridSelectedCell = -1;
 		// this.gridAlphabets = [
@@ -78,6 +78,64 @@ class Grid extends React.Component {
 		
 	}
 
+	loopGridSelect(words,cs){
+		for(var y=words.length-1;y<words.length;y++){//Only take the most recent one.
+			for(var gridIndex=0;gridIndex<16;gridIndex++){//Loop through the grid
+				if(!cs[gridIndex]){//Check if cell is selected
+					console.log(words[y].toUpperCase()+"\t"+this.gridAlphabets[gridIndex]);
+					if(words[y]==this.gridAlphabets[gridIndex].toUpperCase()){
+						// cs[gridIndex] = true;
+						// this.history.push(gridIndex);
+						return gridIndex;
+					}
+				}
+			}
+		}
+		return -1;
+	}
+
+	loopCellNeighbors(words, neighbors){
+		let found=false;
+		let index=-1;
+		for(var y=words.length-1;y<words.length;y++){//Only take the most recent one.
+			//Loop only through cell neighbors
+			for(var neighborIndex=0;neighborIndex<neighbors.length;neighborIndex++){
+				// for(var gridIndex=0;gridIndex<16;gridIndex++){//Loop through the grid
+					if(!this.state.cellSelected[neighbors[neighborIndex]]){//Check if cell is selected
+						if(words[y]==this.gridAlphabets[neighbors[neighborIndex]].toUpperCase()){
+							// found = true;
+							// cs[neighbors[neighborIndex]] = true;
+							// this.history.push(neighbors[neighborIndex]);
+							return {f:true,i:neighborIndex};
+						}
+					}
+				// }
+			}
+		}
+		return {f:false,i:-1};
+	}
+
+	countOccurence(alphabet){
+		let counter = 0;
+		this.gridAlphabets.forEach(e => {
+			if(alphabet==e.toUpperCase()){
+				counter++;
+			}
+		});
+		return counter;
+	}
+
+	countOccurenceInNeighbors(alphabet,neighbors){
+		let counter = 0;
+		for(var i=0;i<neighbors.length;i++){
+			console.log(" -- " + this.gridAlphabets[neighbors[i]].toUpperCase());
+			if(alphabet==this.gridAlphabets[neighbors[i]].toUpperCase()){
+				counter++;
+			}
+		}
+		return counter;
+	}
+
 	componentDidUpdate(){
 		if(this.enterUpdateSync==this.props.updateSync){ //Prevent infinite loop.
 			this.enterUpdateSync++;
@@ -116,56 +174,126 @@ class Grid extends React.Component {
 			const regexQu = RegExp('^QU$','i'); // Check for qu
 
 
-			console.log(words + " word length " + words.length + " - " + this.state.history.length);
+			console.log(words + " word length " + words.length + " - " + this.history.length);
 
-			if(words.length>this.state.history.length){
+			if(words.length>this.history.length){
 				console.log("in 1");
 				//Entering A-Z
 				if(words.length==1){
 					                    
 					console.log("Grid first text: " + this.props.text + " count : " + words.length);
-					for(var y=words.length-1;y<words.length;y++){//Only take the most recent one.
-						for(var gridIndex=0;gridIndex<16;gridIndex++){//Loop through the grid
-							if(!cs[gridIndex]){//Check if cell is selected
-								console.log(words[y].toUpperCase()+"\t"+this.gridAlphabets[gridIndex]);
-								if(words[y]==this.gridAlphabets[gridIndex].toUpperCase()){
-									cs[gridIndex] = true;
-									this.state.history.push(gridIndex);
-									break;
-                                }
-                                // let regex = RegExp(letters[y]+letters[y-1],'i'); // Check if entered value is between A-Z only
-                                // if(regex.test(this.gridAlphabets[gridIndex])){
-                                //     cs[gridIndex] = true;
-								// 	this.state.history.push(gridIndex);
-								// 	break;
-                                // }
-							}
-						}
+					let gridIndex = this.loopGridSelect(words,cs);
+					if(gridIndex!=-1){
+						cs[gridIndex] = true;
+						this.history.push(gridIndex);
+					}else{
+						this.props.callBackBoggle(ACTIONS.POP1);
 					}
+					
 				}
 				else{
 					console.log("in 2");
 					console.log("Grid n text: " + this.props.text + " count : " + words.length);
-                    const neighbors = cellNeighbors[this.state.history[this.state.history.length-1]];
+                    const neighbors = cellNeighbors[this.history[this.history.length-1]];
 					let found = false;
-					console.log("cell neighbors : " +this.state.history[this.state.history.length-1]+ " " + cellNeighbors[this.state.history[this.state.history.length-1]]);
-					for(var y=words.length-1;y<words.length;y++){//Only take the most recent one.
-						//Loop only through cell neighbors
-						for(var neighborIndex=0;neighborIndex<neighbors.length;neighborIndex++){
-							// for(var gridIndex=0;gridIndex<16;gridIndex++){//Loop through the grid
-								if(!this.state.cellSelected[neighbors[neighborIndex]]){//Check if cell is selected
-									if(words[y]==this.gridAlphabets[neighbors[neighborIndex]].toUpperCase()){
-                                        found = true;
-										cs[neighbors[neighborIndex]] = true;
-										this.state.history.push(neighbors[neighborIndex]);
-										break;
+					console.log("cell neighbors : " +this.history[this.history.length-1]+ " " + cellNeighbors[this.history[this.history.length-1]]);
+
+					let o = this.loopCellNeighbors(words,neighbors);
+					found = o.f;
+					if(found){
+						cs[neighbors[o.i]] = true;
+						this.history.push(neighbors[o.i]);
+					}
+					
+
+
+					if(!found){
+
+						//todo : make function...
+
+						let csOriginal = [];
+						cs.forEach(element => {
+							csOriginal.push(element);
+						});
+
+
+						console.log("original : " + csOriginal);
+						//Choose another path, skip first appearance...
+						//code...
+						let lf = [];
+						for(var x=0;x<16;x++){
+							cs[x] = false;
+						}
+						console.log("original : " + csOriginal);
+
+						//if(words[y]==this.gridAlphabets[gridIndex].toUpperCase()){
+							console.log("lF : "  + lf);
+						
+						for(var m=0; m<words.length; m++){
+							
+							console.log("lF counter : " + m + " " + words[m]);
+							if(m==0){
+								let thisAlphabetCount = this.countOccurence(words[m]);
+								console.log(" occ: " + thisAlphabetCount);
+								for(var p=15;p>-1;p--){
+									if(thisAlphabetCount>1){
+										if(csOriginal[p]==false&&words[m]==this.gridAlphabets[p].toUpperCase()){
+											cs[p] = true;
+											lf.push(p);
+											break;
+										}
+									}else{
+										if(words[m]==this.gridAlphabets[p].toUpperCase()){
+											cs[p] = true;
+											lf.push(p);
+											break;
+										}
 									}
 								}
-							// }
+								console.log("lF : "  + lf);
+							}else{
+								const neighbors = cellNeighbors[lf[lf.length-1]];
+								let thisAlphabetCount = this.countOccurenceInNeighbors(words[m],neighbors);
+								console.log(" occ: " + thisAlphabetCount);
+								console.log("lf rnei: " + neighbors + " cs or : " + csOriginal);
+								for(var p=neighbors.length-1;p>-1;p--){
+									console.log(csOriginal[neighbors[p]] + " > " + neighbors[p]);
+									if(thisAlphabetCount>1){
+										if(csOriginal[neighbors[p]]==false&&words[m]==this.gridAlphabets[neighbors[p]].toUpperCase()){
+											cs[neighbors[p]] = true;
+											lf.push(neighbors[p]);
+											break;
+										}
+									}else{
+										if(words[m]==this.gridAlphabets[neighbors[p]].toUpperCase()){
+											cs[neighbors[p]] = true;
+											lf.push(neighbors[p]);
+											break;
+										}
+									}
+									
+								}
+								console.log("lF : "  + lf);
+								if(lf.length!=(m+1)){
+									break;
+								}
+							}
+							
+						}
+						console.log("Length: lf vs words : "+lf.length+"/"+words.length);
+						if(lf.length==words.length){
+							found = true;
+							this.history = lf;
+							console.log("equal : " + this.history + " > " + cs);
+						}else{
+							cs = csOriginal;
 						}
 
-                    }
+					}
+
                     if(!found){
+
+						//Still not found...
 						let lastWord = words[words.length-1];
 						console.log(lastWord);
 						if(lastWord=="QU"){
@@ -177,11 +305,11 @@ class Grid extends React.Component {
 				}
 			}
 			//Backspace
-			else if(words.length<this.state.history.length){
-				let lastIndex = this.state.history[this.state.history.length-1];
+			else if(words.length<this.history.length){
+				let lastIndex = this.history[this.history.length-1];
 				cs[lastIndex] = false;
 				console.log("last index : " + lastIndex);
-				this.state.history.pop();
+				this.history.pop();
 			}
 
 			this.setState({
@@ -189,11 +317,11 @@ class Grid extends React.Component {
 			});
 			console.log(cs);
 
-			console.log(this.state.history);
-			if(letters.length==1&&letters.length!=this.state.history.length){
+			console.log(this.history);
+			if(letters.length==1&&letters.length!=this.history.length){
 				console.log("Clear grid")
 			}
-			else if(letters.lenght>0&&letters.length!=this.state.history.length){ //Try different combination
+			else if(letters.lenght>0&&letters.length!=this.history.length){ //Try different combination
 				console.log("Try different combination")
 			}
 
@@ -203,8 +331,8 @@ class Grid extends React.Component {
 
 	callBackWithIndex(i,action) {
 		if(action=="unclick"){
-			this.state.history.pop();
-			this.selectedCell = this.state.history[this.state.history.length-1];
+			this.history.pop();
+			this.selectedCell = this.history[this.history.length-1];
 			let cs = [];
 			for(var x=0;x<16;x++){
 				if(x!=i){
@@ -216,12 +344,12 @@ class Grid extends React.Component {
 			this.setState({
 				cellSelected: cs
 			});
-			if(this.state.history.length==0){
+			if(this.history.length==0){
 				this.selectedCell = -1;
 			}
 		}else if(action=="clickclick"){
 			console.log('debug : '+i);
-			this.state.history.push(i);
+			this.history.push(i);
 			let cs = [];
 			for(var x=0;x<16;x++){
 				if(x!=i){
@@ -233,13 +361,13 @@ class Grid extends React.Component {
 			this.setState({
 				cellSelected: cs
 			});
-			console.log(this.state.history);
+			console.log(this.history);
 		}else if(action=="selectedCell"){
 			this.selectedCell = i;
 			console.log("here  sc " + this.selectedCell + " i " + i);
 		}
 		var words = "";
-		this.state.history.forEach(element => {
+		this.history.forEach(element => {
 			words = words + this.gridAlphabets[element];
 		});
 		this.props.onClickEvent(words);
@@ -251,28 +379,28 @@ class Grid extends React.Component {
 			<table>
 				<tbody>
 				<tr>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[0]} history={this.state.history} index={0} alphabet={this.gridAlphabets[0]} callBackIndex={this.callBackWithIndex}/>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[1]} history={this.state.history} index={1} alphabet={this.gridAlphabets[1]} callBackIndex={this.callBackWithIndex}/>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[2]} history={this.state.history} index={2} alphabet={this.gridAlphabets[2]} callBackIndex={this.callBackWithIndex}/>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[3]} history={this.state.history} index={3} alphabet={this.gridAlphabets[3]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[0]} history={this.history} index={0} alphabet={this.gridAlphabets[0]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[1]} history={this.history} index={1} alphabet={this.gridAlphabets[1]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[2]} history={this.history} index={2} alphabet={this.gridAlphabets[2]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[3]} history={this.history} index={3} alphabet={this.gridAlphabets[3]} callBackIndex={this.callBackWithIndex}/>
 				</tr>
 				<tr>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[4]} history={this.state.history} index={4} alphabet={this.gridAlphabets[4]} callBackIndex={this.callBackWithIndex}/>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[5]} history={this.state.history} index={5} alphabet={this.gridAlphabets[5]} callBackIndex={this.callBackWithIndex}/>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[6]} history={this.state.history} index={6} alphabet={this.gridAlphabets[6]} callBackIndex={this.callBackWithIndex}/>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[7]} history={this.state.history} index={7} alphabet={this.gridAlphabets[7]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[4]} history={this.history} index={4} alphabet={this.gridAlphabets[4]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[5]} history={this.history} index={5} alphabet={this.gridAlphabets[5]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[6]} history={this.history} index={6} alphabet={this.gridAlphabets[6]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[7]} history={this.history} index={7} alphabet={this.gridAlphabets[7]} callBackIndex={this.callBackWithIndex}/>
 				</tr>
 				<tr>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[8]} history={this.state.history} index={8} alphabet={this.gridAlphabets[8]} callBackIndex={this.callBackWithIndex}/>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[9]} history={this.state.history} index={9} alphabet={this.gridAlphabets[9]} callBackIndex={this.callBackWithIndex}/>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[10]} history={this.state.history} index={10} alphabet={this.gridAlphabets[10]} callBackIndex={this.callBackWithIndex}/>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[11]} history={this.state.history} index={11} alphabet={this.gridAlphabets[11]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[8]} history={this.history} index={8} alphabet={this.gridAlphabets[8]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[9]} history={this.history} index={9} alphabet={this.gridAlphabets[9]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[10]} history={this.history} index={10} alphabet={this.gridAlphabets[10]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[11]} history={this.history} index={11} alphabet={this.gridAlphabets[11]} callBackIndex={this.callBackWithIndex}/>
 				</tr>
 				<tr>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[12]} history={this.state.history} index={12} alphabet={this.gridAlphabets[12]} callBackIndex={this.callBackWithIndex}/>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[13]} history={this.state.history} index={13} alphabet={this.gridAlphabets[13]} callBackIndex={this.callBackWithIndex}/>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[14]} history={this.state.history} index={14} alphabet={this.gridAlphabets[14]} callBackIndex={this.callBackWithIndex}/>
-					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[15]} history={this.state.history} index={15} alphabet={this.gridAlphabets[15]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[12]} history={this.history} index={12} alphabet={this.gridAlphabets[12]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[13]} history={this.history} index={13} alphabet={this.gridAlphabets[13]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[14]} history={this.history} index={14} alphabet={this.gridAlphabets[14]} callBackIndex={this.callBackWithIndex}/>
+					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[15]} history={this.history} index={15} alphabet={this.gridAlphabets[15]} callBackIndex={this.callBackWithIndex}/>
 				</tr>
 				</tbody>
 			</table>
