@@ -1,5 +1,5 @@
 import React from 'react';
-import {imgs, imgSs, cellNeighbors} from './constants';
+import {imgs, imgSs, CELLNEIGHBORS} from './constants';
 
 var letters = [];
 var selectedCell = -1; // 
@@ -32,8 +32,8 @@ class Cell extends React.Component{
 		}
 		else{
 			let isNeighbhor = false;
-			console.log(cellNeighbors[selectedCell]);
-			cellNeighbors[selectedCell].forEach((c) => {
+			console.log(CELLNEIGHBORS[selectedCell]);
+			CELLNEIGHBORS[selectedCell].forEach((c) => {
 				console.log('c ' + c + ' i ' + i);
 				if(i==c){
 					isNeighbhor = true;
