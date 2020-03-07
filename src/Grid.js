@@ -26,11 +26,25 @@ class Grid extends React.Component {
 		// 	this.genIndex(8), this.genIndex(9), this.genIndex(10), this.genIndex(11),
 		// 	this.genIndex(12), this.genIndex(13), this.genIndex(14), this.genIndex(15)
 		// ];
+		// this.gridAlphabets = [
+		// 	'I', 'I', 'D', 'N',
+		// 	'H', 'T', 'T', 'K',
+		// 	'B', 'Qu', 'E', 'L',
+		// 	'V', 'E', 'L', 'A'
+		// ];
+
+		// this.gridAlphabets = [
+		// 	'B', 'H', 'W', 'T',
+		// 	'H', 'L', 'O', 'L',
+		// 	'B', 'S', 'V', 'A',
+		// 	'E', 'E', 'U', 'C'
+		// ];
+
 		this.gridAlphabets = [
-			'I', 'I', 'D', 'N',
-			'H', 'T', 'T', 'K',
-			'B', 'Qu', 'E', 'L',
-			'V', 'E', 'L', 'A'
+			'H', 'F', 'Y', 'S',
+			'L', 'D', 'R', 'E',
+			'O', 'E', 'E', 'J',
+			'S', 'E', 'U', 'T'
 		];
 		this.selectedCell = -1;
 		console.log("Grid init : " + this.props.btext);
@@ -251,6 +265,16 @@ class Grid extends React.Component {
 									}
 								}
 								console.log("lF : "  + lf);
+								if(lf.length!=m+1){ // Case could be choosen alphabets may be already selected so just do reverse loop
+									for(var p=15;p>-1;p--){
+										if(words[m]==this.gridAlphabets[p].toUpperCase()){
+											cs[p] = true;
+											lf.push(p);
+											break;
+										}
+									}
+								}
+								console.log("lF : "  + lf);
 							}else{
 								const neighbors = cellNeighbors[lf[lf.length-1]];
 								let thisAlphabetCount = this.countOccurenceInNeighbors(words[m],neighbors);
@@ -275,8 +299,15 @@ class Grid extends React.Component {
 								}
 								console.log("lF : "  + lf);
 								if(lf.length!=(m+1)){
-									break;
+									for(var p=neighbors.length-1;p>-1;p--){
+										if(words[m]==this.gridAlphabets[neighbors[p]].toUpperCase()&&!lf.includes(neighbors[p])){
+											cs[neighbors[p]] = true;
+											lf.push(neighbors[p]);
+											break;
+										}
+									}
 								}
+								console.log("lF` : "  + lf);
 							}
 							
 						}
