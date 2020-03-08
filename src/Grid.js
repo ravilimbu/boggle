@@ -1,8 +1,8 @@
 import React from 'react';
 import Cell from './Cell';
-import {alphabets,CELLNEIGHBORS,ACTIONS} from './constants';
+import {letters,CELLNEIGHBORS,ACTIONS} from './constants';
 
-//Grid component, has grid information and handle all alphabets cell.
+//Grid component, has grid information and handle all letters cell.
 class Grid extends React.Component {
 
 	constructor(props) {
@@ -61,7 +61,7 @@ class Grid extends React.Component {
 		while(true){
 			
 			var count = 0;
-			alphabet = alphabets[i][selectedIndex];
+			alphabet = letters[i][selectedIndex];
 
 			this.gridLetters.forEach((l) => {
 				if(l==alphabet){
@@ -77,7 +77,7 @@ class Grid extends React.Component {
 			// 	selectedIndex = Math.floor(Math.random() * sides);
 			// }
 		}
-		// alphabet = alphabets[i][selectedIndex];
+		// alphabet = letters[i][selectedIndex];
 		// console.log(" GRID : " + alphabet + ' ' + alphaIndex(alphabet));
 		// this.img = imgs[alphaIndex(this.alphabet)];
 		// this.imgS = imgSs[alphaIndex(this.alphabet)];

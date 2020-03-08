@@ -52,8 +52,8 @@ import YsImg from './img/Ys.png';
 import ZImg from './img/Z.png';
 import ZsImg from './img/Zs.png';
 
-//Arrays of alphabets for each cell, each element have 6 letter representing 6 sides of the dice.
-export const alphabets = [
+//Arrays of letters for each cell, each element have 6 letter representing 6 sides of the dice.
+export const letters = [
     ['R','I','F','O','B','X'],
     ['I','F','E','H','E','Y'],
     ['D','E','N','O','W','S'],
