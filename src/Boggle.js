@@ -21,23 +21,23 @@ class Boggle extends React.Component {
 
 	async postData(){
 		try {
-			// let result  = await fetch ('https://webhook.site/c9d3cbd8-4fc4-406b-b427-28b974b429ec',
-			// {
-			// 	method : 'post',
-			// 	mode : 'no-cors',
-			// 	headers : {
-			// 		'Accept': 'application/json',
-			// 		'Content-type': 'application/json',
+			let result  = await fetch ('http://10.10.10.101:3000/validate?word=test',
+			{
+				method : 'get',
+				mode : 'no-cors',
+				headers : {
+					'Accept': 'application/json',
+					// 'Content-type': 'application/json',
 
-			// 	},
-			// 	body: JSON.stringify(
-			// 		{
-			// 			letters: 'abc'
-			// 		}
-			// 	)
-			// }
-			// );
-			// console.log(result);
+				},
+				// body: JSON.stringify(
+				// 	{
+				// 		letters: 'abc'
+				// 	}
+				// )
+			}
+			);
+			console.log(result);
 		} catch (e) {
 			console.log(e)
 		}
