@@ -84,9 +84,11 @@ export const CELLNEIGHBORS = [
 export const imgs = [AImg,BImg,CImg,DImg,EImg,FImg,GImg,HImg,IImg,JImg,KImg,LImg,MImg,NImg,OImg,PImg,QuImg,RImg,SImg,TImg,UImg,VImg,WImg,XImg,YImg,ZImg];
 export const imgSs = [AsImg,BsImg,CsImg,DsImg,EsImg,FsImg,GsImg,HsImg,IsImg,JsImg,KsImg,LsImg,MsImg,NsImg,OsImg,PsImg,QusImg,RsImg,SsImg,TsImg,UsImg,VsImg,WsImg,XsImg,YsImg,ZsImg];
 
-export const totaltime = 120; // Game duration
+export const totaltime = 10; // Game duration
 export const ACTIONS = {
     POP1: 1,
-    POP2: 2
-  };
+    POP2: 2,
+    INGRID: 3,
+    NOTINGRID: 4
+};
   

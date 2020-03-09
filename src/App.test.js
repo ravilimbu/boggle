@@ -1,22 +1,20 @@
 import React from 'react';
-import { render, getByTestId } from '@testing-library/react';
+import { render, fireEvent,queryByText,getByText, getByTestId , cleanup, screen} from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
 import App from './App';
 
+afterEach(cleanup);
+
 test('renders boggle grids', () => {
-  const { getByTestId } = render(<App />);
-  for(var i=0;i<16;i++){
-    const linkElement = getByTestId('cell' + i);
-    expect(linkElement).toBeInTheDocument();
-  }
+  const { getByText } = render(<App />);
+
+  expect(screen.getByText('Start Game')).toBeInTheDocument()
+
+  fireEvent.click(getByText('Start Game'))
+
+  expect(screen.getByTestId('mygrid')).toBeInTheDocument()
   
 });
 
-test('boggle grid text', () => {
-  // const { getByTestId } = render(<App />);
-  // for(var i=0;i<16;i++){
-  //   const linkElement = getByTestId('cell' + i);
-  //   expect(linkElement.innerText).toMatch('/[a-z]/i');
-  // }
-  // expect($('#cell0').text()).toMatch('/[a-z]/i');
-});
+
 

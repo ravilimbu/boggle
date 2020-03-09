@@ -20,71 +20,75 @@ class Cell extends React.Component{
 		this.letter = this.props.alphabet;
 		this.img = imgs[alphaIndex(this.letter)];
 		this.imgS = imgSs[alphaIndex(this.letter)];
-		console.log("Cell render : " + this.props.alphabet);
+		this.gameCompleted = false;
 	}
 
 	clickclick (a,i){
-		console.log("Selected cell prev : " + selectedCell + ' now : ' + i);
-		if(this.props.history.length==0){
-			// this.props.selectedCell = i;
-			this.props.callBackIndex(i, "selectedCell");
-			this.props.callBackIndex(i, "clickclick");
-		}
-		else{
-			let isNeighbhor = false;
-			console.log(CELLNEIGHBORS[this.props.history[this.props.history.length-1]]);
-			CELLNEIGHBORS[this.props.history[this.props.history.length-1]].forEach((c) => {
-				console.log('c ' + c + ' i ' + i);
-				if(i==c){
-					isNeighbhor = true;
-				}
-			});
-			console.log("is neighbor: " + isNeighbhor);
-			if(isNeighbhor){
-				// this.props.selectedCell = i;
+		if(!this.gameCompleted){
+			
+			if(this.props.history.length==0){	
 				this.props.callBackIndex(i, "selectedCell");
-				this.setState({
-					selected: true
-				});
 				this.props.callBackIndex(i, "clickclick");
-			}else{
-				//reset select
 			}
+			else{
+				let isNeighbhor = false;
+				
+				CELLNEIGHBORS[this.props.history[this.props.history.length-1]].forEach((c) => {
+				
+					if(i==c){
+						isNeighbhor = true;
+					}
+				});
+				
+				if(isNeighbhor){
+				
+					this.props.callBackIndex(i, "selectedCell");
+					this.setState({
+						selected: true
+					});
+					this.props.callBackIndex(i, "clickclick");
+				}else{
+					//reset select
+				}
+			}
+	
 		}
-
-		// this.props.onClickEvent('c');
-		
-
 	}
 
 	unclick (a,i){
-		let len = this.props.history.length;
-		let lastIndex = this.props.history[len-1];
-		if(lastIndex==i){
-			// this.setState({
-			// 	selected: false
-			// });
-			// this.props.history.pop();
-			this.props.callBackIndex(i, "unclick");
-			console.log('Length : ' + len + ' ' + this.props.history);
-			
+
+		if(!this.gameCompleted){
+			let len = this.props.history.length;
+			let lastIndex = this.props.history[len-1];
+			if(lastIndex==i){
+
+				this.props.callBackIndex(i, "unclick");
+				
+			}
+		
 		}
-		// this.props.onClickEvent('u');
+	}
+
+	componentDidUpdate(){
+		
+		if(this.props.gameCompleted){
+			this.gameCompleted = true;
+		}
 	}
 
 	render(){
 
 		let nameId = "cell" +  this.props.index;
-		// console.log("rendered")
+
 		if(!this.props.isSelected){
 			return (
-				<td id={nameId} data-testid={nameId}>
+				<td id={nameId} data-testid={nameId} placeholder={this.letter} >
 				<img src={this.img}  onClick={() => this.clickclick(this.letter,this.props.index)}/>
 				</td>
 			);
 		}else{
 			return (
-				<td id={nameId} data-testid={nameId}>
+				<td id={nameId} data-testid={nameId} placeholder={`u${this.letter}`} >
 				<img src={this.imgS}  onClick={() => this.unclick(this.letter,this.props.index)}/>
 				</td>
 			);

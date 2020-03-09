@@ -6,13 +6,15 @@ import {totaltime,ACTIONS} from './constants';
 class Boggle extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { start: false, text: "", seconds: 0, timer: totaltime, words: []};
+		this.state = { start: false, text: "", seconds: 0, timer: totaltime, words: [], gameCompleted: false};
 		this.handleChange = this.handleChange.bind(this);
 		this.handleClick = this.handleClick.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
         this.gridBoggleCallback = this.gridBoggleCallback.bind(this);
 		this.enterUpdateSync = 0;
 		this.quflag = false;
+		this.wordInGrid = false;
+		this.gameCompleted = false;
 	}
 
 	tick() {
@@ -23,7 +25,7 @@ class Boggle extends React.Component {
 
 	async postData(string){
 		try {
-			let result  = await fetch ('http://10.10.10.101:3000/validate?word=' + string,
+			let result  = await fetch ('http://localhost:3001/validate?word=' + string,
 			{
 				method : 'get',
 				mode : 'cors',
@@ -33,7 +35,7 @@ class Boggle extends React.Component {
 					'Accept-Language': 'en-US,en;q=0.5',
 					'Cache-Control': 'no-cache',
 					'Connection': 'keep-alive',
-					'Host': '10.10.10.101:3000',
+					'Host': 'localhost:3001',
 					'Access-Control-Allow-Origin': '*',
 					'Access-Control-Allow-Headers': 'origin, content-type',
 					'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
@@ -97,23 +99,32 @@ class Boggle extends React.Component {
                 score = score + item['text'].length;
             }
 		});
-		alert("Congratulation, you scored " + score);
+		if(!this.state.gameCompleted){
+			this.enterUpdateSync++;
+			this.setState({gameCompleted:true});
+			if(score>0){
+				alert("Congratulation, you scored " + score);
+			}else{
+				alert("Sorry, you scored " + score);
+			}
+		}
+
 	}
 
 	handleChange(e) {
 		const regex = RegExp('^[A-Z]{0,}$'); // Check if entered value is between A-Z only
-		const regexQu = RegExp('.*Q$'); 
+		const regexQu = RegExp('Q'); 
 		let txt = e.target.value.toUpperCase();
 		if(regex.test(txt)){
 			if(regexQu.test(txt)&&!this.quflag){
 				this.quflag=true;
 				txt = txt + "U";
 			}else if(regexQu.test(txt)&&this.quflag){
-				console.log("here bvackspace");
+				
 				txt = txt.substr(0, txt.length - 1);
 				this.quflag=false;
 			}
-			console.log("type " + txt);
+			
 			this.enterUpdateSync++;
 			this.setState({ text: txt });
 		}else{
@@ -124,24 +135,34 @@ class Boggle extends React.Component {
 
 	handleSubmit (e){
 		e.preventDefault();
-		const ltext=this.state.text.toLowerCase();
-		let isUnique = true;
-		this.state.words.forEach(item => {
-			if(item['text']==ltext){
-				isUnique=false;
+
+		if(this.wordInGrid){
+			let isOkay = true;
+			const ltext=this.state.text.toLowerCase();
+
+			if(ltext.length<3){
+				alert("Word must contain 3 or more than 3 letters.");
+				return;
 			}
-		});
-		if(isUnique){
-			this.postData(ltext);
-			this.enterUpdateSync++;
-			this.setState({ text: "" });
-		}else{
-			alert("Word already selected")
+
+			let isUnique = true;
+			this.state.words.forEach(item => {
+				if(item['text']==ltext){
+					isUnique=false;
+				}
+			});
+			if(isUnique){
+				this.postData(ltext);
+				this.enterUpdateSync++;
+				this.setState({ text: "" });
+			}else{
+				alert("Word already selected")
+			}
 		}
+
 	}
 
 	handleClick(i) {
-		// console.log("From boggle component: " + i);
 		this.setState({ text: i });
     }
     
@@ -155,6 +176,10 @@ class Boggle extends React.Component {
 			words.pop();
 			words.pop();
             this.setState({ text: words.join("") });
+		}else if(action==ACTIONS.NOTINGRID){
+			this.wordInGrid = false;
+		}else if(action==ACTIONS.INGRID){
+			this.wordInGrid = true;
 		}
     }
 
@@ -167,7 +192,7 @@ class Boggle extends React.Component {
 				<div className="gameIntro">
 					<ul>
 						<li>You will have 2 minutes before timeout.</li>
-						<li>You can choose horizontal, vertically and diagonally.</li>
+						<li>You can choose horizontally, vertically or diagonally.</li>
 						<li>You can either type or click your chosen letters.</li>
 					</ul>
 					<div className="acenter">
@@ -175,9 +200,9 @@ class Boggle extends React.Component {
 					</div>
 				</div>
 			);
-		}else {
+		}else if(this.state.start){
 			let btext = this.state.text;
-			// console.log("btext: " + btext);
+			
 			return(
 				<div>
 					<div>
@@ -188,7 +213,9 @@ class Boggle extends React.Component {
 					<div>
 						<div className="acenter">
 
-						<Grid 	text={this.state.text}
+						<Grid 	
+								text={this.state.text}
+								gameCompleted={this.state.gameCompleted}
 								onClickEvent={this.handleClick} 
 								updateSync={this.enterUpdateSync}
 								callBackBoggle={this.gridBoggleCallback}
@@ -216,9 +243,7 @@ class Boggle extends React.Component {
 					</div>
 				</div>
 			);
-		}
-
-		
+		}		
 	}
 }
 export default Boggle;
