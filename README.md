@@ -1,3 +1,24 @@
+Boggle React App
+========================
+
+This app is built using `npm init react-app`
+
+
+Deployment instructions
+========================
+1. Unzip boggle folder on your sysmtem.
+2. nodejs should already be installed on your system. 
+3. From terminal go to boggle directory, example ~/Documents/react/boggle
+4. Enter `npm install` to install all the necessary dependencies for the app to run
+5. Enter `npm test` to check the minimum functioning of the app.
+6. Before starting the app please first run the rails server.
+7. Enter `npm start` to host this app. A browser should open automatically or you can open a browser and go to http://localhost:3000
+8. You can do `npm run build` and host the files inside build folder on your existing apache server.
+
+Below text is automatically generate by npm init react-app
+
+============================================================
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
