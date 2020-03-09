@@ -6,8 +6,8 @@ This app is built using `npm init react-app`
 
 Deployment instructions
 ========================
-1. Unzip boggle folder on your sysmtem.
-2. nodejs should already be installed on your system. 
+1. Unzip boggle folder on your system.
+2. nodejs should already be installed on your system. ( If nodejs is not installed please follow https://nodejs.org/en/download/ )
 3. From terminal go to boggle directory, example ~/Documents/react/boggle
 4. Enter `npm install` to install all the necessary dependencies for the app to run
 5. Enter `npm test` to check the minimum functioning of the app.
