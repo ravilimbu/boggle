@@ -42,9 +42,9 @@ class Grid extends React.Component {
 
 		// this.gridAlphabets = [
 		// 	'H', 'F', 'Y', 'S',
-		// 	'L', 'D', 'R', 'E',
-		// 	'O', 'E', 'E', 'J',
-		// 	'S', 'E', 'U', 'T'
+		// 	'L', 'A', 'A', 'E',
+		// 	'O', 'E', 'Z', 'J',
+		// 	'S', 'E', 'U', 'Z'
 		// ];
 		this.selectedCell = -1;
 		console.log("Grid init : " + this.props.btext);
@@ -198,6 +198,15 @@ class Grid extends React.Component {
 
 	componentDidUpdate(){
 		if(this.enterUpdateSync==this.props.updateSync){ //Prevent infinite loop.
+
+
+			console.log("updated : " + this.props.text);
+			if(this.props.text){
+
+				this.history = [];
+
+			}
+
 			this.enterUpdateSync++;
 			let letters = this.props.text.split("");
 
@@ -223,8 +232,6 @@ class Grid extends React.Component {
 				}
 			}
 
-			
-
 			let cs = [];
 			for(var x=0;x<16;x++){
 				// cs[x] = this.state.cellSelected[x];
@@ -234,186 +241,27 @@ class Grid extends React.Component {
 			const regexQ = RegExp('^Q$','i'); // Check for qu
 			const regexQu = RegExp('^QU$','i'); // Check for qu
 
-
 			console.log(words + " word length " + words.length + " - " + this.history.length);
 
 			this.results = [];
-			let result = this.search(words[0], 0, words, [], -1);
+			if(words.length>0){
+				let result = this.search(words[0], 0, words, [], -1);
+			}
 			console.log("final result : ");
 			console.log(this.results);
+			this.history = [];
 
 			if(this.results.length>0){
 				this.results[0].forEach(cellIndex => {
 					cs[cellIndex] = true;
+					this.history.push(cellIndex);
 				});
 			}
-
-			// if(words.length>this.history.length){
-			// 	console.log("in 1");
-			// 	//Entering A-Z
-			// 	if(words.length==1){
-					                    
-			// 		console.log("Grid first text: " + this.props.text + " count : " + words.length);
-			// 		let gridIndex = this.loopGridSelect(words,cs);
-			// 		if(gridIndex!=-1){
-			// 			cs[gridIndex] = true;
-			// 			this.history.push(gridIndex);
-			// 		}else{
-			// 			this.props.callBackBoggle(ACTIONS.POP1);
-			// 		}
-					
-			// 	}
-			// 	else{
-			// 		console.log("in 2");
-			// 		console.log("Grid n text: " + this.props.text + " count : " + words.length);
-            //         const neighbors = CELLNEIGHBORS[this.history[this.history.length-1]];
-			// 		let found = false;
-			// 		console.log("cell neighbors : " +this.history[this.history.length-1]+ " " + CELLNEIGHBORS[this.history[this.history.length-1]]);
-
-			// 		let o = this.loopCELLNEIGHBORS(words,neighbors);
-			// 		found = o.f;
-			// 		if(found){
-			// 			cs[neighbors[o.i]] = true;
-			// 			this.history.push(neighbors[o.i]);
-			// 		}
-					
-
-
-			// 		if(!found){
-
-			// 			//todo : make function...
-
-			// 			let csOriginal = [];
-			// 			cs.forEach(element => {
-			// 				csOriginal.push(element);
-			// 			});
-
-
-			// 			console.log("original : " + csOriginal);
-			// 			//Choose another path, skip first appearance...
-			// 			//code...
-			// 			let lf = [];
-			// 			for(var x=0;x<16;x++){
-			// 				cs[x] = false;
-			// 			}
-			// 			console.log("original : " + csOriginal);
-
-			// 			//if(words[y]==this.gridAlphabets[gridIndex].toUpperCase()){
-			// 				console.log("lF : "  + lf);
-						
-			// 			for(var m=0; m<words.length; m++){
-							
-			// 				console.log("lF counter : " + m + " " + words[m]);
-			// 				if(m==0){
-			// 					let thisAlphabetCount = this.countOccurence(words[m]);
-			// 					console.log(" occ: " + thisAlphabetCount);
-			// 					for(var p=15;p>-1;p--){
-			// 						if(thisAlphabetCount>1){
-			// 							if(csOriginal[p]==false&&words[m]==this.gridAlphabets[p].toUpperCase()){
-			// 								cs[p] = true;
-			// 								lf.push(p);
-			// 								break;
-			// 							}
-			// 						}else{
-			// 							if(words[m]==this.gridAlphabets[p].toUpperCase()){
-			// 								cs[p] = true;
-			// 								lf.push(p);
-			// 								break;
-			// 							}
-			// 						}
-			// 					}
-			// 					console.log("lF : "  + lf);
-			// 					if(lf.length!=m+1){ // Case could be choosen alphabets may be already selected so just do reverse loop
-			// 						for(var p=15;p>-1;p--){
-			// 							if(words[m]==this.gridAlphabets[p].toUpperCase()){
-			// 								cs[p] = true;
-			// 								lf.push(p);
-			// 								break;
-			// 							}
-			// 						}
-			// 					}
-			// 					console.log("lF : "  + lf);
-			// 				}else{
-			// 					const neighbors = CELLNEIGHBORS[lf[lf.length-1]];
-			// 					let thisAlphabetCount = this.countOccurenceInNeighbors(words[m],neighbors);
-			// 					console.log(" occ: " + thisAlphabetCount);
-			// 					console.log("lf rnei: " + neighbors + " cs or : " + csOriginal);
-			// 					for(var p=neighbors.length-1;p>-1;p--){
-			// 						console.log(csOriginal[neighbors[p]] + " > " + neighbors[p]);
-			// 						if(thisAlphabetCount>1){
-			// 							if(csOriginal[neighbors[p]]==false&&words[m]==this.gridAlphabets[neighbors[p]].toUpperCase()){
-			// 								cs[neighbors[p]] = true;
-			// 								lf.push(neighbors[p]);
-			// 								break;
-			// 							}
-			// 						}else{
-			// 							if(words[m]==this.gridAlphabets[neighbors[p]].toUpperCase()){
-			// 								cs[neighbors[p]] = true;
-			// 								lf.push(neighbors[p]);
-			// 								break;
-			// 							}
-			// 						}
-									
-			// 					}
-			// 					console.log("lF : "  + lf);
-			// 					if(lf.length!=(m+1)){
-			// 						for(var p=neighbors.length-1;p>-1;p--){
-			// 							if(words[m]==this.gridAlphabets[neighbors[p]].toUpperCase()&&!lf.includes(neighbors[p])){
-			// 								cs[neighbors[p]] = true;
-			// 								lf.push(neighbors[p]);
-			// 								break;
-			// 							}
-			// 						}
-			// 					}
-			// 					console.log("lF` : "  + lf);
-			// 				}
-							
-			// 			}
-			// 			console.log("Length: lf vs words : "+lf.length+"/"+words.length);
-			// 			if(lf.length==words.length){
-			// 				found = true;
-			// 				this.history = lf;
-			// 				console.log("equal : " + this.history + " > " + cs);
-			// 			}else{
-			// 				cs = csOriginal;
-			// 			}
-
-			// 		}
-
-            //         if(!found){
-
-			// 			//Still not found...
-			// 			let lastWord = words[words.length-1];
-			// 			console.log(lastWord);
-			// 			if(lastWord=="QU"){
-			// 				this.props.callBackBoggle(ACTIONS.POP2);
-			// 			}else{
-            //             	this.props.callBackBoggle(ACTIONS.POP1);
-			// 			}
-            //         }
-			// 	}
-			// }
-			// //Backspace
-			// else if(words.length<this.history.length){
-			// 	let lastIndex = this.history[this.history.length-1];
-			// 	cs[lastIndex] = false;
-			// 	console.log("last index : " + lastIndex);
-			// 	this.history.pop();
-			// }
 
 			this.setState({
 				cellSelected: cs
 			});
-			// console.log(cs);
-
-			// console.log(this.history);
-			// if(letters.length==1&&letters.length!=this.history.length){
-			// 	console.log("Clear grid")
-			// }
-			// else if(letters.lenght>0&&letters.length!=this.history.length){ //Try different combination
-			// 	console.log("Try different combination")
-			// }
-
+			
 		}
 
 	}
@@ -459,13 +307,13 @@ class Grid extends React.Component {
 		this.history.forEach(element => {
 			words = words + this.gridAlphabets[element];
 		});
-		this.props.onClickEvent(words);
+		this.props.onClickEvent(words.toUpperCase());
   	}
 
 	render (){
 		
 		return (
-			<table>
+			<table className="acenter">
 				<tbody>
 				<tr>
 					<Cell selectedCell={this.selectedCell} isSelected={this.state.cellSelected[0]} history={this.history} index={0} alphabet={this.gridAlphabets[0]} callBackIndex={this.callBackWithIndex}/>

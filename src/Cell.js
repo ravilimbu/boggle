@@ -17,23 +17,23 @@ class Cell extends React.Component{
 	constructor(props) {
 		super(props);
 		this.state = { selected: false, selectedIndex: this.props.selectedCell};
-		this.alphabet = this.props.alphabet;
-		this.img = imgs[alphaIndex(this.alphabet)];
-		this.imgS = imgSs[alphaIndex(this.alphabet)];
+		this.letter = this.props.alphabet;
+		this.img = imgs[alphaIndex(this.letter)];
+		this.imgS = imgSs[alphaIndex(this.letter)];
 		console.log("Cell render : " + this.props.alphabet);
 	}
 
 	clickclick (a,i){
 		console.log("Selected cell prev : " + selectedCell + ' now : ' + i);
-		if(selectedCell==-1){
+		if(this.props.history.length==0){
 			// this.props.selectedCell = i;
 			this.props.callBackIndex(i, "selectedCell");
 			this.props.callBackIndex(i, "clickclick");
 		}
 		else{
 			let isNeighbhor = false;
-			console.log(CELLNEIGHBORS[selectedCell]);
-			CELLNEIGHBORS[selectedCell].forEach((c) => {
+			console.log(CELLNEIGHBORS[this.props.history[this.props.history.length-1]]);
+			CELLNEIGHBORS[this.props.history[this.props.history.length-1]].forEach((c) => {
 				console.log('c ' + c + ' i ' + i);
 				if(i==c){
 					isNeighbhor = true;
@@ -79,13 +79,13 @@ class Cell extends React.Component{
 		if(!this.props.isSelected){
 			return (
 				<td id={nameId} data-testid={nameId}>
-				<img src={this.img}  onClick={() => this.clickclick(this.alphabet,this.props.index)}/>
+				<img src={this.img}  onClick={() => this.clickclick(this.letter,this.props.index)}/>
 				</td>
 			);
 		}else{
 			return (
 				<td id={nameId} data-testid={nameId}>
-				<img src={this.imgS}  onClick={() => this.unclick(this.alphabet,this.props.index)}/>
+				<img src={this.imgS}  onClick={() => this.unclick(this.letter,this.props.index)}/>
 				</td>
 			);
 		}

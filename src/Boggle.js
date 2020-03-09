@@ -1,13 +1,15 @@
 import React from 'react';
 import Grid from './Grid';
+import WordsList from './WordsList';
 import {totaltime,ACTIONS} from './constants';
 
 class Boggle extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { start: false, text: "", seconds: 0, timer: totaltime};
+		this.state = { start: false, text: "", seconds: 0, timer: totaltime, words: []};
 		this.handleChange = this.handleChange.bind(this);
-        this.handleClick = this.handleClick.bind(this);
+		this.handleClick = this.handleClick.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
         this.gridBoggleCallback = this.gridBoggleCallback.bind(this);
 		this.enterUpdateSync = 0;
 		this.quflag = false;
@@ -19,9 +21,9 @@ class Boggle extends React.Component {
 		}));
 	}
 
-	async postData(){
+	async postData(string){
 		try {
-			let result  = await fetch ('http://10.10.10.101:3000/validate?word=test',
+			let result  = await fetch ('http://10.10.10.101:3000/validate?word=' + string,
 			{
 				method : 'get',
 				mode : 'cors',
@@ -38,12 +40,7 @@ class Boggle extends React.Component {
 					'Pragma': 'no-cache',
 					'Upgrade-Insecure-Requests': '1',
 					'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:73.0) Gecko/20100101 Firefox/73.0'
-				},
-				// body: JSON.stringify(
-				// 	{
-				// 		letters: 'abc'
-				// 	}
-				// )
+				}
 			}
 			)
 			.then(response => {
@@ -54,6 +51,16 @@ class Boggle extends React.Component {
 				}
 			  });
 			console.log(result['result']);
+			
+			const w = {
+				text: string,
+				match: result['result'],
+				id: Date.now()
+			};			
+			this.setState(state => ({
+				words: state.words.concat(w),
+			}));
+			
 		} catch (e) {
 			console.log(e)
 		}
@@ -67,8 +74,6 @@ class Boggle extends React.Component {
 
 	componentDidMount() {
 		
-		this.postData();
-		console.log('Async end!!!');
 	}
 
 	componentWillUnmount() {
@@ -83,7 +88,16 @@ class Boggle extends React.Component {
 
 	timeUp(){
 		clearInterval(this.interval);
-		alert("Time is up");
+		
+		document.getElementById('inputText').disabled = true;
+		document.getElementById('submitButton').disabled = true;
+		let score = 0;
+        this.state.words.forEach(item => {
+            if(item['match']){
+                score = score + item['text'].length;
+            }
+		});
+		alert("Congratulation, you scored " + score);
 	}
 
 	handleChange(e) {
@@ -106,6 +120,24 @@ class Boggle extends React.Component {
 			console.error(e.target.value)
 		}
 		
+	}
+
+	handleSubmit (e){
+		e.preventDefault();
+		const ltext=this.state.text.toLowerCase();
+		let isUnique = true;
+		this.state.words.forEach(item => {
+			if(item['text']==ltext){
+				isUnique=false;
+			}
+		});
+		if(isUnique){
+			this.postData(ltext);
+			this.enterUpdateSync++;
+			this.setState({ text: "" });
+		}else{
+			alert("Word already selected")
+		}
 	}
 
 	handleClick(i) {
@@ -132,8 +164,15 @@ class Boggle extends React.Component {
 
 		if(!this.state.start){
 			return (
-				<div>
-					<button onClick={() => this.startBoggle()}>Start Game</button>
+				<div className="gameIntro">
+					<ul>
+						<li>You will have 2 minutes before timeout.</li>
+						<li>You can choose horizontal, vertically and diagonally.</li>
+						<li>You can either type or click your chosen letters.</li>
+					</ul>
+					<div className="acenter">
+						<button className="gameButton" onClick={() => this.startBoggle()}>Start Game</button>
+					</div>
 				</div>
 			);
 		}else {
@@ -142,37 +181,39 @@ class Boggle extends React.Component {
 			return(
 				<div>
 					<div>
-					Time: {time}
+						<p className="acenter"><b>{time}</b> <small>seconds left</small></p>
 					</div>
 					<div></div>
 					<div className="cl"></div>
 					<div>
-					<div>
-					{this.state.text}
+						<div className="acenter">
 
-					<Grid 	text={btext}
-							onClickEvent={this.handleClick} 
-                            updateSync={this.enterUpdateSync}
-                            callBackBoggle={this.gridBoggleCallback}
-					/>
-					
-					</div>
-					<div>
-					
-						<label>
-						<small>Enter text or click above and submit.</small>
-						</label>
-						<br></br>
-						<input onChange={this.handleChange} value={this.state.text}
+						<Grid 	text={this.state.text}
+								onClickEvent={this.handleClick} 
+								updateSync={this.enterUpdateSync}
+								callBackBoggle={this.gridBoggleCallback}
 						/>
-						<button>
-						Submit
-						</button>
-					
+						
+						</div>
+						<div className="acenter">
+							<form onSubmit={this.handleSubmit}>
+								<label>
+									<small><i>Enter text or click above and submit.</i></small>
+								</label>
+								
+								<input id="inputText" className="textInput" onChange={this.handleChange} value={this.state.text} />
+								
+								<button id="submitButton" className="gameButton">
+								Submit
+								</button>
+								<br></br>
+							</form>
+						</div>
 					</div>
-					
+					<p></p>
+					<div>
+						<WordsList items={this.state.words}/>
 					</div>
-					<div></div>
 				</div>
 			);
 		}
