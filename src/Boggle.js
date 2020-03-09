@@ -24,11 +24,20 @@ class Boggle extends React.Component {
 			let result  = await fetch ('http://10.10.10.101:3000/validate?word=test',
 			{
 				method : 'get',
-				mode : 'no-cors',
+				mode : 'cors',
 				headers : {
 					'Accept': 'application/json',
-					// 'Content-type': 'application/json',
-
+					'Accept-Encoding': 'gzip, deflate',
+					'Accept-Language': 'en-US,en;q=0.5',
+					'Cache-Control': 'no-cache',
+					'Connection': 'keep-alive',
+					'Host': '10.10.10.101:3000',
+					'Access-Control-Allow-Origin': '*',
+					'Access-Control-Allow-Headers': 'origin, content-type',
+					'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+					'Pragma': 'no-cache',
+					'Upgrade-Insecure-Requests': '1',
+					'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:73.0) Gecko/20100101 Firefox/73.0'
 				},
 				// body: JSON.stringify(
 				// 	{
@@ -36,8 +45,15 @@ class Boggle extends React.Component {
 				// 	}
 				// )
 			}
-			);
-			console.log(result);
+			)
+			.then(response => {
+				if (response.ok) {
+				  return response.json();
+				} else {
+				  throw new Error('error fetching data...');
+				}
+			  });
+			console.log(result['result']);
 		} catch (e) {
 			console.log(e)
 		}
