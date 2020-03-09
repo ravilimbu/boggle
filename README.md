@@ -15,6 +15,8 @@ Deployment instructions
 7. Enter `npm start` to host this app. A browser should open automatically or you can open a browser and go to http://localhost:3000
 8. You can do `npm run build` and host the files inside build folder on your existing apache server.
 
+Note: Please adjust server localhost and port according to your setting ( if not http://localhost:3001 ) on this file boggle/src/Boggle.js line no. 28
+
 Below text is automatically generate by npm init react-app
 
 ============================================================
