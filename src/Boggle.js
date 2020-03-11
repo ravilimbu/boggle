@@ -113,7 +113,8 @@ class Boggle extends React.Component {
 
 	handleChange(e) {
 		const regex = RegExp('^[A-Z]{0,}$'); // Check if entered value is between A-Z only
-		const regexQu = RegExp('Q'); 
+		// const regexQu = RegExp('Q'); 
+		const regexQu = RegExp('.*Q$'); 
 		let txt = e.target.value.toUpperCase();
 		if(regex.test(txt)){
 			if(regexQu.test(txt)&&!this.quflag){
